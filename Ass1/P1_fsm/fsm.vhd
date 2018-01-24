@@ -18,7 +18,7 @@ constant SLASH_CHARACTER : std_logic_vector(7 downto 0) := "00101111";
 constant STAR_CHARACTER : std_logic_vector(7 downto 0) := "00101010";
 constant NEW_LINE_CHARACTER : std_logic_vector(7 downto 0) := "00001010";
 
-type state_type is (s0, s1, s2, s3, s4);
+type state_type is (s0, s1, s2, s3, s4, s5);
 signal current_s, next_s: state_type;
 
 begin
@@ -62,7 +62,7 @@ begin
     when s2 =>       --when current state is "s2"
       if(input = NEW_LINE_CHARACTER) then
         output <= '1';
-        next_s <= s0;
+        next_s <= s5;
       else
         output <= '1';
         next_s <= s2;
@@ -80,11 +80,15 @@ begin
     when s4 =>         --when current state is "s4"
       if(input = SLASH_CHARACTER) then
         output <= '1';
-        next_s <= s0;
+        next_s <= s5;
       else
         output <= '1';
         next_s <= s3;
       end if;
+
+    when s5 =>         --when current state is "s5"
+      output <= '1';
+      next_s <= s0;
 
   end case;
 end process;
