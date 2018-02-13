@@ -9,7 +9,7 @@ z2
 cModel Technology
 Z0 dC:/Users/Arthur/Documents/SpiderOak Hive/Cours/Sem 2/Computer Architecture/compArch/Ass2/code
 Epipeline
-Z1 w1518472559
+Z1 w1518496916
 Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
 Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
 Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
@@ -17,14 +17,14 @@ R0
 Z5 8pipeline.vhd
 Z6 Fpipeline.vhd
 l0
-L5
-VESAQGEN:B:6CDDQIh1W;W1
-!s100 _UHN_nPZ?jS:gd2zEO1[M3
+L8
+V0k7M9>WD7Y?AjJ4:O4<l]1
+!s100 ]68<5lkMhRLaS[l=P[MCF0
 Z7 OP;C;10.4a;61
 32
-Z8 !s110 1518495412
+Z8 !s110 1518496921
 !i10b 1
-Z9 !s108 1518495412.000000
+Z9 !s108 1518496920.000000
 Z10 !s90 -reportprogress|300|pipeline.vhd|
 Z11 !s107 pipeline.vhd|
 !i113 1
@@ -34,11 +34,11 @@ Abehavioral
 R2
 R3
 R4
-DEx4 work 8 pipeline 0 22 ESAQGEN:B:6CDDQIh1W;W1
-l16
-L12
-V@RMX6HCR?ecA9Kj34H^4_2
-!s100 ;EYo54Cb4_8mTdhBiOL[E0
+DEx4 work 8 pipeline 0 22 0k7M9>WD7Y?AjJ4:O4<l]1
+l19
+L15
+VK9N6Jg<V?IA?>NS^HYUWg3
+!s100 Rhh:gSIJLa9C[0^V]S?@R3
 R7
 32
 R8
@@ -50,7 +50,7 @@ R11
 o-O0
 R12
 Epipeline_tb
-Z13 w1518495407
+Z13 w1518496903
 R2
 R3
 R4
@@ -58,16 +58,16 @@ R0
 Z14 8pipeline_tb.vhd
 Z15 Fpipeline_tb.vhd
 l0
-L5
-VQCV`40Z4okI`U4;danzeP3
-!s100 aMLU^Bgi<MG2ZzzV]6?bf3
+L8
+Vi[9eW3UQe1Z_N:GX:JkTb2
+!s100 i_g10;zFA1;[VDISk_5Af1
 R7
 32
 R8
 !i10b 1
-R9
-Z16 !s90 -reportprogress|300|pipeline_tb.vhd|
-Z17 !s107 pipeline_tb.vhd|
+Z16 !s108 1518496921.000000
+Z17 !s90 -reportprogress|300|pipeline_tb.vhd|
+Z18 !s107 pipeline_tb.vhd|
 !i113 1
 o-O0
 R12
@@ -75,18 +75,18 @@ Abehaviour
 R2
 R3
 R4
-Z18 DEx4 work 11 pipeline_tb 0 22 QCV`40Z4okI`U4;danzeP3
-l24
-L8
-VXEU[B1EL=AGl:dL0UknmX2
-!s100 omO?G[=DiS8WD:JbIjNAN1
+DEx4 work 11 pipeline_tb 0 22 i[9eW3UQe1Z_N:GX:JkTb2
+l27
+L11
+V4;F1K2SaVT>>l>;^b2l=Y3
+!s100 zzd1D6@@ha5Rg3jMJJUOF0
 R7
 32
 R8
 !i10b 1
-R9
 R16
 R17
+R18
 !i113 1
 o-O0
 R12
