@@ -127,6 +127,29 @@ BEGIN
 	ASSERT (s_output = '0') REPORT "When reading a meaningless character, the output should be '0'" SEVERITY ERROR;
 	REPORT "_______________________";
 
+	REPORT "Multi-Line comment";
+	s_input <= "01011000";
+	WAIT FOR 1 * clk_period;
+	s_input <= SLASH_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '0') REPORT "At the first slash, should be 0'" SEVERITY ERROR;
+	s_input <= STAR_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '0') REPORT "Start of comment (still 0)" SEVERITY ERROR;
+	s_input <= STAR_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '1') REPORT "Still a comment" SEVERITY ERROR;
+	s_input <= SLASH_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '1') REPORT "Commment" SEVERITY ERROR;
+	s_input <= "01011000";
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '0') REPORT "Not a comment" SEVERITY ERROR;
+	s_input <= STAR_CHARACTER;
+	WAIT FOR 1 * clk_period;
+	ASSERT (s_output = '0') REPORT "Not a comment" SEVERITY ERROR;
+	REPORT "_______________________";
+
 	REPORT "All edges tested";
 	WAIT;
 END PROCESS stim_process;
