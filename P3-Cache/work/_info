@@ -1,0 +1,174 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/Arthur/Documents/SpiderOak Hive/Cours/Sem 2/Computer Architecture/compArch/P3-Cache
+Ecache
+Z1 w1519880447
+Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+R0
+Z5 8cache.vhd
+Z6 Fcache.vhd
+l0
+L5
+VU6A1`BRI@XlB5RbWbHB=?0
+!s100 C<;HKM7M38>>4jE0Q0h@Q2
+Z7 OP;C;10.4a;61
+32
+Z8 !s110 1519881265
+!i10b 1
+Z9 !s108 1519881265.000000
+Z10 !s90 -reportprogress|300|cache.vhd|
+Z11 !s107 cache.vhd|
+!i113 1
+o-O0
+Z12 tExplicit 1
+Aarch
+R2
+R3
+R4
+DEx4 work 5 cache 0 22 U6A1`BRI@XlB5RbWbHB=?0
+l34
+L30
+V9LXnALfGZf3]`cgA97I1e0
+!s100 R0PknVCk6M1E1=hImK8j62
+R7
+32
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+o-O0
+R12
+Ecache_tb
+Z13 w1519881151
+R2
+R3
+R4
+R0
+Z14 8cache_tb.vhd
+Z15 Fcache_tb.vhd
+l0
+L5
+VUfG9XTOHD=MfZ2FL?jNlL1
+!s100 N8hTJD?ado=UI;TQE4:Ql3
+R7
+32
+R8
+!i10b 1
+R9
+Z16 !s90 -reportprogress|300|cache_tb.vhd|
+Z17 !s107 cache_tb.vhd|
+!i113 1
+o-O0
+R12
+Abehavior
+R2
+R3
+R4
+Z18 DEx4 work 8 cache_tb 0 22 UfG9XTOHD=MfZ2FL?jNlL1
+l71
+L8
+Z19 VD38@0EQjd=LgSBgVdZ;QO1
+Z20 !s100 k9lCHGP:oN8M@<zfWjdd[1
+R7
+32
+R8
+!i10b 1
+R9
+R16
+R17
+!i113 1
+o-O0
+R12
+Ememory
+Z21 w1485501980
+R2
+R3
+R4
+R0
+Z22 8memory.vhd
+Z23 Fmemory.vhd
+l0
+L6
+V`jFEc]cT[GXAlUe:b5^>o0
+!s100 TL`MNK5NTn0=f?i`Ph2JS3
+R7
+32
+Z24 !s110 1519880040
+!i10b 1
+Z25 !s108 1519880040.000000
+Z26 !s90 -reportprogress|300|memory.vhd|
+Z27 !s107 memory.vhd|
+!i113 1
+o-O0
+R12
+Artl
+R2
+R3
+R4
+DEx4 work 6 memory 0 22 `jFEc]cT[GXAlUe:b5^>o0
+l29
+L23
+V=XkLAmWaEeXCehT@OAj[`0
+!s100 Fl5=Y6J][VGa6l_6YBKG33
+R7
+32
+R24
+!i10b 1
+R25
+R26
+R27
+!i113 1
+o-O0
+R12
+Ememory_tb
+R21
+R2
+R3
+R4
+R0
+Z28 8memory_tb.vhd
+Z29 Fmemory_tb.vhd
+l0
+L5
+V4>]m9FnDc5EMe07:icRQm0
+!s100 K:h_7;_e46:2;TAj@4dAB3
+R7
+32
+R24
+!i10b 1
+R25
+Z30 !s90 -reportprogress|300|memory_tb.vhd|
+Z31 !s107 memory_tb.vhd|
+!i113 1
+o-O0
+R12
+Abehaviour
+R2
+R3
+R4
+DEx4 work 9 memory_tb 0 22 4>]m9FnDc5EMe07:icRQm0
+l38
+L8
+V?C:Dl2`4WigaAU1d>klB71
+!s100 :i96VH_8DL4G91ZkR7MdH1
+R7
+32
+R24
+!i10b 1
+R25
+R30
+R31
+!i113 1
+o-O0
+R12
