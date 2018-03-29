@@ -8,7 +8,7 @@ ENTITY IDEX IS
 		clock			: IN STD_LOGIC;
 		
 		--Ex
-		ALUopIn		: IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+		ALUopIn			: IN STD_LOGIC_VECTOR(2 DOWNTO 0);
 		RegDstIn		: IN STD_LOGIC;
 		ALUsrcIn		: IN STD_LOGIC;
 		--Mem
@@ -99,24 +99,25 @@ IDEX: process (clock)
 begin
 	if (clock'event AND clock = '1') then
 		--WB
-		RegWriteOut <= RegWriteTmp;
 		MemtoRegOut <= MemtoRegTmp;
+		RegWriteOut <= RegWriteTmp;
 		--Mem
-		BranchOut <= BranchTmp;
-		MemReadOut <= MemReadTmp;		
-		MemWriteOut <= MemWriteTmp;		
-		--Ex
-		ALUopOut <= ALUopTmp;		
-		RegDstOut <= RegDstTmp;		
-		ALUsrcOut <= ALUsrcTmp;		
-		
-		addressOut <= addressTmp;
-		readdata1Out <= readdata1Tmp;	
-		readdata2Out <= readdata2Tmp;	
-		signextendOut <= signextendTmp;
+		MemWriteOut <= MemWriteTmp;
+		MemReadOut <= MemReadTmp;
+		BranchOut <= BranchTmp;		
+		--Ex	
+		ALUsrcOut <= ALUsrcTmp;
+		ALUopOut <= ALUopTmp;	
+		RegDstOut <= RegDstTmp;	
+
 		RsOut <= RsTmp;	
 		RtOut <= RtTmp;
-		RdOut <= RdTmp;
+		RdOut <= RdTmp;	
+		readdata1Out <= readdata1Tmp;	
+		readdata2Out <= readdata2Tmp;		
+		addressOut <= addressTmp;	
+		signextendOut <= signextendTmp;
+		
 	end if;
 end process;
 	
