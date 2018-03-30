@@ -4,13 +4,12 @@ USE std.textio.ALL;
 
 ENTITY MemoryInByte IS
 	GENERIC (
-		GENERIC (
 		 fileAddressRd		:	STRING  := "Init.dat";
 		 fileAddressWr		:	STRING  := "MemCon.dat";
 		 memSize			:	INTEGER := 256;
 		 numBitsInByte		:	INTEGER := 8;
 		 rdDelay			:	INTEGER := 0;
-		 wrDelay			:	INTEGER := 0;		
+		 wrDelay			:	INTEGER := 0
 	);
 
 	PORT (
@@ -22,7 +21,7 @@ ENTITY MemoryInByte IS
 		init 				: 	IN STD_LOGIC;
 		dump				:	IN STD_LOGIC;
 		data				: 	INOUT STD_LOGIC_VECTOR(numBitsInByte-1 downto 0);
-		wrDone				:	OUT STD_LOGIC;	
+		wrDone				:	OUT STD_LOGIC
 	);
 
 END MemoryInByte;
