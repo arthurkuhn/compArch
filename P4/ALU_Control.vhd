@@ -37,7 +37,7 @@ begin
 	case ALUOp is
 		-- load and store
 		when "000" =>
-			op_reg <= ADD;
+			op_reg <= ADD_OP;
 		-- branch equal
 		when "001" =>
 			op_reg <= SUB_OP;
@@ -88,7 +88,7 @@ begin
 					op_reg <= SHIFT_LOGICAL_R
 				-- shift right arithmetic
 				when "000011"=>
-					op_reg <= SHIFT;
+					op_reg <= SHIFT_R;
 				-- NOR
 				when "100111"=>
 					op_reg <= NOR_OP;
@@ -97,11 +97,11 @@ begin
 					op_reg <= XOR_OP;
 				-- Move from LO
 				when "010010"=>
-					op_reg <= ADD;
+					op_reg <= ADD_OP;
 					readLOHI <= "11";
 				-- Move from HI
 				when "010000"=>
-					op_reg <= ADD;
+					op_reg <= ADD_OP;
 					readLOHI <= "10";
 				when others =>
 					null;
