@@ -26,6 +26,7 @@ architecture Behavior of ALU is
     constant OR_OP : STD_LOGIC_VECTOR (4 downto 0) := "0001";
     constant ADD_OP : STD_LOGIC_VECTOR (4 downto 0) := "0010";
     constant MULT_OP : STD_LOGIC_VECTOR (4 downto 0) := "0011";
+    constant DIV_OP : STD_LOGIC_VECTOR (4 downto 0) "= "0100";
     constant SUB_OP : STD_LOGIC_VECTOR (4 downto 0) := "0110";
     constant SET_LT : STD_LOGIC_VECTOR (4 downto 0) := "0111";
     constant SHIFT_LOGICAL_L : STD_LOGIC_VECTOR (4 downto 0) := "1000";
@@ -76,15 +77,15 @@ begin
     -- High Output
     with control select
     	Hi <=
-    		multResult(63 DOWNTO 32)		        when  "0011",
-    		divRemainder(31 DOWNTO 0)		        when  "0100",
+    		multResult(63 DOWNTO 32)		        when  MULT_OP,
+    		divRemainder(31 DOWNTO 0)		        when  DIV_OP,
     		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"	    when  OTHERS;
 
     -- Lo Output
     with control select
     	Lo <=
-    	    multResult(31 DOWNTO 0) 		        when "0011",
-    		divResult				                when "0100",
+    	    multResult(31 DOWNTO 0) 		        when MULT_OP,
+    		divResult				                when DIV_OP,
     		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"	    when OTHERS;
 
     result <= aluResult;
