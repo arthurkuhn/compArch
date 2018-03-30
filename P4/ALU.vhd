@@ -18,8 +18,8 @@ end ALU;
 
 architecture Behavior of ALU is
 
-    signal addResult, subResult, multResult, divResult, divRemainder, sltResult : integer := 0; -- integer temporary results
-    signal multOut, divOut, divRemainderOut, aluOut : std_logic_vector(31 downto 0);  -- 32 bit integers
+    signal addResult, subResult, multResult, divResult, divRemainder : integer := 0; -- integer temporary results
+    signal divOut, divRemainderOut, aluOut, sltOut : std_logic_vector(31 downto 0);  -- 32 bit integers
     signal multOut : std_logic_vector(63 downto 0);  -- 32 bit integers
     signal addSub : integer;
 
@@ -49,10 +49,10 @@ begin
     divRemainder <= to_integer(signed(InA)) mod to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
 
     -- CONVERSIONS --
-    sltResult <= std_logic_vector(to_signed(subResult, 32)); -- MSB gives the output
-    multOut <= std_logic_vector(to_signed(multiplierResult, 64));
-    divOut <= std_logic_vector(to_signed(dividerResult, 32));
-    divRemainderOut <= std_logic_vector(to_signed(dividerRemainder, 32));
+    sltOut <= std_logic_vector(to_signed(subResult, 32)); -- MSB gives the output
+    multOut <= std_logic_vector(to_signed(multResult, 64));
+    divOut <= std_logic_vector(to_signed(divResult, 32));
+    divRemainderOut <= std_logic_vector(to_signed(divRemainder, 32));
 
     -- Output Multiplexer
     with control select
@@ -61,7 +61,7 @@ begin
             InA OR  InB 		                                                    when OR_OP,
             std_logic_vector(to_signed(subResult, 32)) 		                        when SUB_OP,
             std_logic_vector(to_signed(addResult, 32)) 		                        when ADD_OP,
-            std_logic_vector(unsigned(sltResult) srl 31) 	                        when SET_LT, -- The MSB is 1 if negative of 0 if positve
+            std_logic_vector(unsigned(sltOut) srl 31) 	                        when SET_LT, -- The MSB is 1 if negative of 0 if positve
             InA NOR InB 								                            when NOR_OP,
             InA XOR InB 							                                when XOR_OP,
             std_logic_vector(unsigned(InB) sll to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_L,
