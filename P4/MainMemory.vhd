@@ -19,7 +19,7 @@ ENTITY MainMemory IS
 		wordByte			:	IN STD_LOGIC;
 		we 					:	IN STD_LOGIC;
 		re 					: 	IN STD_LOGIC;
-		rdReady				: 	IN STD_LOGIC;
+		rdReady				: 	OUT STD_LOGIC;
 		init 				: 	IN STD_LOGIC;
 		dump				:	IN STD_LOGIC;
 		data				: 	INOUT STD_LOGIC_VECTOR((numBytesInWord*numBitsInByte)-1 downto 0);
@@ -38,7 +38,7 @@ signal we0, we1, we2, we3 : STD_LOGIC;
 
 signal byteOffset : INTEGER := 0;
 signal wordPointer : INTEGER := 0;
-signal blockMemInit : STD_LOGIC := 0;
+signal blockMemInit : STD_LOGIC := '0';
 
 component MemoryInByte
 	GENERIC (
@@ -216,13 +216,13 @@ wrDone <= '1' when wrDone0='1' OR wrDone1='1' OR wrDone2='1' OR wrDone3='1' else
 				READ(lineNumRd, lineContent); -- read contents of line from file into a variable
 
 				write(lineNumWr, lineContent(1 to numBitsInByte*1)); --write the line
-				writeline(fileWritePointer3, lineNumWr); --write contents into the file
+				writeline(fileWrPointer3, lineNumWr); --write contents into the file
 					write(lineNumWr, lineContent(numBitsInByte*1+1 to numBitsInByte*2));
-				writeline(fileWritePointer2, lineNumWr); --write contents into the file
+				writeline(fileWrPointer2, lineNumWr); --write contents into the file
 					write(lineNumWr, lineContent(numBitsInByte*2+1 to numBitsInByte*3));
-				writeline(fileWritePointer1, lineNumWr); --write contents into the file
+				writeline(fileWrPointer1, lineNumWr); --write contents into the file
 					write(lineNumWr, lineContent(numBitsInByte*3+1 to numBitsInByte*4));
-				writeline(fileWritePointer0, lineNumWr); --write contents into the file
+				writeline(fileWrPointer0, lineNumWr); --write contents into the file
 
 			end loop;
 
@@ -261,7 +261,7 @@ wrDone <= '1' when wrDone0='1' OR wrDone1='1' OR wrDone2='1' OR wrDone3='1' else
 				READ(lineNumRd, lineContentRd3); -- read contents of line from file into a variable
 
 				lineContent(1 to numBitsInByte) := lineContentRd3;
-				lineContent(1 to numBitsInByte+1 to 2*numBitsInByte) := lineContentRd2;
+				lineContent(1*numBitsInByte+1 to 2*numBitsInByte) := lineContentRd2;
 				lineContent(2*numBitsInByte+1 to 3*numBitsInByte) := lineContentRd1;
 				lineContent(3*numBitsInByte+1 to 4*numBitsInByte) := lineContentRd0;
 
