@@ -17,7 +17,7 @@ ENTITY MemoryInByte IS
 		address 			:	IN INTEGER;
 		we 					:	IN STD_LOGIC;
 		re 					: 	IN STD_LOGIC;
-		rdReady				: 	IN STD_LOGIC;
+		rdReady				: 	OUT STD_LOGIC;
 		init 				: 	IN STD_LOGIC;
 		dump				:	IN STD_LOGIC;
 		data				: 	INOUT STD_LOGIC_VECTOR(numBitsInByte-1 downto 0);
@@ -103,7 +103,7 @@ BEGIN
 			file_close(filePointer); -- after writing is done, close file
 
 		-- use clock if not initializing and dumping
-		elsif(clk'event AND clk='1') then
+		elsif(clock'event AND clock='1') then
 			data <= (others => 'Z'); --since data port is an INOUT
 
 			if(re='1' AND we='0') then
