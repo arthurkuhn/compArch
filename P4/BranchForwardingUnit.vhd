@@ -13,7 +13,7 @@ ENTITY BranchForwardingUnit IS
 		MEMWBRegRd : in std_logic_vector(4 downto 0);
 		MEMWBRegWrite : in std_logic;
 		EXMEMRegRd : in std_logic_vector(4 downto 0);
-		EXMEMRegWrite : in std_logic;
+		EXMEMRegWrite : in std_logic
 		
 	);
 END BranchForwardingUnit;
