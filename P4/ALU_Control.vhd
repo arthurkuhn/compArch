@@ -15,18 +15,18 @@ end ALU_control;
 architecture behaviour of ALU_control is
 	signal op_reg: std_logic_vector(3 downto 0);
 
-    constant AND_OP : STD_LOGIC_VECTOR (4 downto 0) := "0000";
-    constant OR_OP : STD_LOGIC_VECTOR (4 downto 0) := "0001";
-    constant ADD_OP : STD_LOGIC_VECTOR (4 downto 0) := "0010";
-    constant MULT_OP : STD_LOGIC_VECTOR (4 downto 0) := "0011";
-    constant DIV_OP : STD_LOGIC_VECTOR (4 downto 0) "= "0100";
-    constant SUB_OP : STD_LOGIC_VECTOR (4 downto 0) := "0110";
-    constant SET_LT : STD_LOGIC_VECTOR (4 downto 0) := "0111";
-    constant SHIFT_LOGICAL_L : STD_LOGIC_VECTOR (4 downto 0) := "1000";
-    constant SHIFT_LOGICAL_R : STD_LOGIC_VECTOR (4 downto 0) := "1001";
-    constant SHIFT_R : STD_LOGIC_VECTOR (4 downto 0) := "1010";
-    constant XOR_OP : STD_LOGIC_VECTOR (4 downto 0) := "1100";
-    constant NOR_OP : STD_LOGIC_VECTOR (4 downto 0) := "1101";
+    constant AND_OP : STD_LOGIC_VECTOR (3 downto 0) := "0000";
+    constant OR_OP : STD_LOGIC_VECTOR (3 downto 0) := "0001";
+    constant ADD_OP : STD_LOGIC_VECTOR (3 downto 0) := "0010";
+    constant MULT_OP : STD_LOGIC_VECTOR (3 downto 0) := "0011";
+    constant DIV_OP : STD_LOGIC_VECTOR (3 downto 0) := "0100";
+    constant SUB_OP : STD_LOGIC_VECTOR (3 downto 0) := "0110";
+    constant SET_LT : STD_LOGIC_VECTOR (3 downto 0) := "0111";
+    constant SHIFT_LOGICAL_L : STD_LOGIC_VECTOR (3 downto 0) := "1000";
+    constant SHIFT_LOGICAL_R : STD_LOGIC_VECTOR (3 downto 0) := "1001";
+    constant SHIFT_R : STD_LOGIC_VECTOR (3 downto 0) := "1010";
+    constant XOR_OP : STD_LOGIC_VECTOR (3 downto 0) := "1100";
+    constant NOR_OP : STD_LOGIC_VECTOR (3 downto 0) := "1101";
 
 begin
 

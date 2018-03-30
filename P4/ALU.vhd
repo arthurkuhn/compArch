@@ -12,28 +12,29 @@ entity ALU is
         Result  : out STD_LOGIC_VECTOR(31 downto 0);
         IsZero  : out STD_LOGIC;
         Hi      : out STD_LOGIC_VECTOR(31 downto 0);
-        Lo      : out STD_LOGIC_VECTOR(31 downto 0);
+        Lo      : out STD_LOGIC_VECTOR(31 downto 0)
 	);
 end ALU;
 
 architecture Behavior of ALU is
 
-    signal addResult, subResult, multResult, divResult, divRemainder : integer := 0; -- integer temporary results
-    signal divOut, divRemainderOut, aluOut, sltOut : std_logic_vector(31 downto 0);  -- 32 bit integers
+    signal addResult, subResult, multResult, divResult, divRemainder, sltResult : integer := 0; -- integer temporary results
+    signal multOut, divOut, divRemainderOut, aluOut : std_logic_vector(31 downto 0);  -- 32 bit integers
+    signal multOut : std_logic_vector(63 downto 0);  -- 32 bit integers
     signal addSub : integer;
 
-    constant AND_OP : STD_LOGIC_VECTOR (4 downto 0) := "0000";
-    constant OR_OP : STD_LOGIC_VECTOR (4 downto 0) := "0001";
-    constant ADD_OP : STD_LOGIC_VECTOR (4 downto 0) := "0010";
-    constant MULT_OP : STD_LOGIC_VECTOR (4 downto 0) := "0011";
-    constant DIV_OP : STD_LOGIC_VECTOR (4 downto 0) "= "0100";
-    constant SUB_OP : STD_LOGIC_VECTOR (4 downto 0) := "0110";
-    constant SET_LT : STD_LOGIC_VECTOR (4 downto 0) := "0111";
-    constant SHIFT_LOGICAL_L : STD_LOGIC_VECTOR (4 downto 0) := "1000";
-    constant SHIFT_LOGICAL_R : STD_LOGIC_VECTOR (4 downto 0) := "1001";
-    constant SHIFT_R : STD_LOGIC_VECTOR (4 downto 0) := "1010";
-    constant XOR_OP : STD_LOGIC_VECTOR (4 downto 0) := "1100";
-    constant NOR_OP : STD_LOGIC_VECTOR (4 downto 0) := "1101";
+    constant AND_OP : STD_LOGIC_VECTOR (3 downto 0) := "0000";
+    constant OR_OP : STD_LOGIC_VECTOR (3 downto 0) := "0001";
+    constant ADD_OP : STD_LOGIC_VECTOR (3 downto 0) := "0010";
+    constant MULT_OP : STD_LOGIC_VECTOR (3 downto 0) := "0011";
+    constant DIV_OP : STD_LOGIC_VECTOR (3 downto 0) := "0100";
+    constant SUB_OP : STD_LOGIC_VECTOR (3 downto 0) := "0110";
+    constant SET_LT : STD_LOGIC_VECTOR (3 downto 0) := "0111";
+    constant SHIFT_LOGICAL_L : STD_LOGIC_VECTOR (3 downto 0) := "1000";
+    constant SHIFT_LOGICAL_R : STD_LOGIC_VECTOR (3 downto 0) := "1001";
+    constant SHIFT_R : STD_LOGIC_VECTOR (3 downto 0) := "1010";
+    constant XOR_OP : STD_LOGIC_VECTOR (3 downto 0) := "1100";
+    constant NOR_OP : STD_LOGIC_VECTOR (3 downto 0) := "1101";
 
 
 begin
@@ -43,12 +44,12 @@ begin
     -- INTEGER OPERATIONS --
     addResult <= to_integer(signed(InA)) + to_integer(signed(InB));
     subResult <= to_integer(signed(InA)) - to_integer(signed(InB));
-    multiplierResult <= to_integer(signed(InA)) * to_integer(signed(InB));
-    dividerResult	 <= to_integer(signed(InA)) / to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
-    dividerRemainder <= to_integer(signed(InA)) mod to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
+    multResult <= to_integer(signed(InA)) * to_integer(signed(InB));
+    divResult	 <= to_integer(signed(InA)) / to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
+    divRemainder <= to_integer(signed(InA)) mod to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
 
     -- CONVERSIONS --
-    sltOut <= std_logic_vector(to_signed(subResult, 32)); -- MSB gives the output
+    sltResult <= std_logic_vector(to_signed(subResult, 32)); -- MSB gives the output
     multOut <= std_logic_vector(to_signed(multiplierResult, 64));
     divOut <= std_logic_vector(to_signed(dividerResult, 32));
     divRemainderOut <= std_logic_vector(to_signed(dividerRemainder, 32));
@@ -63,9 +64,9 @@ begin
             std_logic_vector(unsigned(sltResult) srl 31) 	                        when SET_LT, -- The MSB is 1 if negative of 0 if positve
             InA NOR InB 								                            when NOR_OP,
             InA XOR InB 							                                when XOR_OP,
-            std_logic_vector(unsigned(InB) sll to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_LEFT,
-            std_logic_vector(unsigned(InB) srl to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_RIGHT,
-            to_stdlogicvector(to_bitvector(InA) sra to_integer(unsigned(shamt)))	when SHIFT,
+            std_logic_vector(unsigned(InB) sll to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_L,
+            std_logic_vector(unsigned(InB) srl to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_R,
+            to_stdlogicvector(to_bitvector(InA) sra to_integer(unsigned(shamt)))	when SHIFT_R,
             std_logic_vector(to_signed(addResult, 32)) 					            when OTHERS;
 
     -- Slt Comparaison
@@ -77,17 +78,17 @@ begin
     -- High Output
     with control select
     	Hi <=
-    		multResult(63 DOWNTO 32)		        when  MULT_OP,
-    		divRemainder(31 DOWNTO 0)		        when  DIV_OP,
+    		multOut(63 DOWNTO 32)		        when  MULT_OP,
+    		divRemainderOut(31 DOWNTO 0)		        when  DIV_OP,
     		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"	    when  OTHERS;
 
     -- Lo Output
     with control select
     	Lo <=
-    	    multResult(31 DOWNTO 0) 		        when MULT_OP,
-    		divResult				                when DIV_OP,
+    	    multOut(31 DOWNTO 0) 		        when MULT_OP,
+    		divOut				                when DIV_OP,
     		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"	    when OTHERS;
 
-    result <= aluResult;
+    result <= aluOut;
 
-end Behavioral;
+end Behavior;

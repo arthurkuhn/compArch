@@ -2,7 +2,7 @@ LIBRARY ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTIY EXMEM IS
+entity exmem IS
 	PORT
 	(
 		clock : IN STD_LOGIC;
@@ -33,19 +33,19 @@ ENTIY EXMEM IS
 		HiOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		LowOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		ZeroOut : OUT STD_LOGIC;
-		DatabaseOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+		DatabaseOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
     		AddressOut: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		RdOut : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
 	);
 END EXMEM;	
 
-ARCHITECTURE A of EXMEM Is
+ARCHITECTURE Arch of EXMEM Is
 
 
 
 signal tempReg : STD_LOGIC;
 signal tempMemoryRegister : STD_LOGIC;
-signal tempBranch : STD_LOGIC:
+signal tempBranch : STD_LOGIC;
 signal tempMemoryRead : STD_LOGIC;
 signal tempMemoryWrite : STD_LOGIC;
 signal tempResult : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -93,4 +93,4 @@ begin
 end process;
 	
 	
-END ARCH;
+END Arch;
