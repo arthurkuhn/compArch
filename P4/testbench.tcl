@@ -13,7 +13,7 @@ vcom IFID.vhd
 vcom MainMemory.vhd
 vcom MemoryInByte.vhd
 vcom MEMWB.vhd
-vcom programCounter.vhd
+vcom PC.vhd
 vcom registers.vhd
 vcom mainFunction.vhd
 
