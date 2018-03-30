@@ -12,7 +12,7 @@ ENTITY ForwardingUnit IS
 		MEMWBRegRd : std_logic_vector(4 downto 0);
 		MEMWBRegWrite : in std_logic;
 		EXMEMRegRd : std_logic_vector(4 downto 0);
-		EXMEMRegWrite : in std_logic;
+		EXMEMRegWrite : in std_logic
 	);
 END ForwardingUnit;
 

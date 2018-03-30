@@ -54,7 +54,7 @@ begin
 
 		    -- OPERATIONS --
 
-			-- r-format
+			-- r-type
 			when "000000" =>
 				RegDst_reg 	    <= '1';
 				MemToReg_reg	<= '0';
