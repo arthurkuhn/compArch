@@ -2,11 +2,11 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 USE ieee.numeric_std.all;
 
-entity mainFunction is 
+ENTITY mainFunction is 
 
-end mainFunction;
+END mainFunction;
 
-architecture functionality of mainFunction is 
+Architecture func of mainFunction is 
 
 constant clockPeriod : time := 1 ns;
 signal clockSig : std_logic := '0';
@@ -19,7 +19,7 @@ component programCounter is
 	addressO : out std_logic_vector(31 downto 0)
 	pcWrite : in std_logic
 	clock : in std_logic
-);
+	);
 END component; 
 
 component MainMemory is
@@ -295,7 +295,7 @@ component EXMEM IS
 END component;
 
 
---Program Counter Signals
+--PC Signals
 
 signal	addressI : std_logic_vector(31 downto 0);
 signal	pcWrite : std_logic := '0';
@@ -303,7 +303,134 @@ signal muxPcSource : std_logic_vector(31 downto 0);
 signal pcAddress  : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
 signal stall : std_logic := '0';
 
---Instruction Memory Signal 
+--Instruction Mem Signals
+
+type instStateType is (init, rdInst1, rdInst2);
+signal instState : instStateType := init;
+signal wordByteInstMem : STD_LOGIC := '1';
+signal reInstMem : STD_LOGIC := '0';
+signal rdReadyInstMem : STD_LOGIC := '0';
+signal dumpInstMem : STD_LOGIC := '0';
+signal addressInstMem : STD_LOGIC := '0';
+signal dataInstMem : STD_LOGIC_VECTOR(31 downto 0);
+
+--Data Mem Signals
+
+type dataStateType is (init, idle, rdMem1, rdMem2, wrMem1, wrMem2, dump, fin);
+signal dataState : dataStateType := init;
+signal data : STD_LOGIC_VECTOR(31 downto 0) := (others => 'Z');
+signal MDR : STD_LOGIC_VECTOR(31 downto 0);
+signal wordByteDataMem : STD_LOGIC := '1';
+signal reDataMem : STD_LOGIC := '0';
+signal rdReadyDataMem : STD_LOGIC := '0';
+signal weDataMem : STD_LOGIC;
+signal wrDoneDataMem : STD_LOGIC;
+signal dataDataMem : STD_LOGIC_VECTOR(31 downto 0);
+signal initDataMem : STD_LOGIC := '0';
+signal dumpDataMem : STD_LOGIC := '0';
+signal addressDataMem : INTEGER := 0;
+
+signal InitReg : STD_LOGIC := '0';
+signal Bch : STD_LOGIC;
+signal MemToReg	: STD_LOGIC;
+signal MemRead : STD_LOGIC;
+signal MemWrite	: STD_LOGIC;
+signal ALUOp : STD_LOGIC_VECTOR(2 downto 0);
+signal AluSrc : STD_LOGIC;
+signal RegDst : STD_LOGIC;
+signal Jmp : STD_LOGIC;
+signal RegWrite : STD_LOGIC;
+signal NotZero : STD_LOGIC;
+signal IDZero : STD_LOGIC;
+signal LUI : STD_LOGIC;
+
+signal readdata1 : std_logic_vector(31 downto 0);
+signal readdata2 : std_logic_vector(31 downto 0);
+signal signExtend : std_logic_vector(31 downto 0);
+signal rs : std_logic_vector(4 downto 0);
+signal rt : std_logic_vector(4 downto 0);
+signal rd : std_logic_vector(4 downto 0);
+
+signal IFFlush : STD_LOGIC;
+signal IFIDWrite : STD_LOGIC;
+signal IFIDAddress : STD_LOGIC;
+signal IFIDInstruction : STD_LOGIC_VECTOR (31 downto 0);
+
+signal IDEXRegWrite	: STD_LOGIC;
+signal IDEXMemtoReg : STD_LOGIC;
+signal IDEXBranch : STD_LOGIC;
+signal IDEXMemRead : STD_LOGIC;
+signal IDEXMemWrite : STD_LOGIC;
+signal IDEXALUop : STD_LOGIC_VECTOR(2 downto 0);
+signal IDEXRegDst : STD_LOGIC;
+signal IDEXALUsrc : STD_LOGIC;
+signal IDEXAddress : STD_LOGIC_VECTOR(31 downto 0);
+signal IDEXreaddata1 : STD_LOGIC_VECTOR(31 downto 0);
+signal IDEXreaddata2 : STD_LOGIC_VECTOR(31 downto 0);
+signal IDEXsignextend : STD_LOGIC_VECTOR(31 downto 0);
+signal IDEXRs : STD_LOGIC_VECTOR(4 downto 0);
+signal IDEXRd : STD_LOGIC_VECTOR(4 downto 0);
+signal IDEXRt : STD_LOGIC_VECTOR(4 downto 0);
+signal IDEXRegRead : STD_LOGIC_VECTOR(4 downto 0);
+
+-- ALU Control Signals
+signal DataA : std_logic_vector(31 downto 0);
+signal DataB : std_logic_vector(31 downto 0);
+signal ALUSrcMux : std_logic_vector(31 downto 0);
+signal Shamt : std_logic_vector(4 downto 0);
+signal Result : std_logic_vector(31 downto 0);
+signal Hi : std_logic_vector(31 downto 0);
+signal Lo : std_logic_vector(31 downto 0);
+signal IsZero : std_logic;
+
+-- Forwarding Unit Signals
+signal Aforward : std_logic_vector(1 downto 0);
+signal Bforward : std_logic_vector(1 downto 0);
+
+-- Branch Jump Signals
+signal ALU2ShiftDatabb : std_logic_vector(31 downto 0);
+signal BranchAddress : std_logic_vector(31 downto 0);
+signal JumpAddress : std_logic_vector(31 downto 0);
+signal PCSrc : std_logic;
+signal JumpMuxOut : std_logic_vector(31 downto 0);
+
+signal EXMEMRegWrite : std_logic;
+signal EXMEMMemtoReg : std_logic;
+signal EXMEMBranch : std_logic;
+signal EXMEMMemRd : std_logic;
+signal EXMEMMemWrite : std_logic;
+signal EXMEMResult : std_logic(31 downto 0);
+signal EXMEMHi : std_logic_vector(31 downto 0);
+signal EXMEMLo : std_logic_vector(31 downto 0);
+signal EXMEMIsZero : std_logic;
+signal EXMEMDataB : std_logic_vector(31 downto 0);
+signal EXMEMAddress : std_logic_vector(31 downto 0);
+signal EXMEMRegRd : std_logic_vector(4 downto 0);
+
+signal MEMWBRegWrite : std_logic;
+signal MEMWBMemtoReg : std_logic;
+signal MEMWBwrDone : std_logic;
+signal MEMWBrdReady : std_logic;
+signal MEMWBResult : std_logic(31 downto 0);
+signal MEMWBHi : std_logic_vector(31 downto 0);
+signal MEMWBLo : std_logic_vector(31 downto 0);
+signal MEMWBIsZero : std_logic;
+signal MEMWBData: std_logic_vector(31 downto 0);
+signal MEMWBRegRd : std_logic_vector(4 downto 0);
+
+--Other signals
+signal wrDataMux : STD_LOGIC_VECTOR(31 downto 0);
+signal MemtoRegMux : STD_LOGIC_VECTOR(31 downto 0);
+signal ALULo : STD_LOGIC_VECTOR(31 downto 0);
+signal ALUHi : STD_LOGIC_VECTOR(31 downto 0);
+signal RegLo : STD_LOGIC_VECTOR(31 downto 0);
+signal RegHi : STD_LOGIC_VECTOR(31 downto 0);
+signal hazardControl : STD_LOGIC_VECTOR(9 downto 0);
+
+signal BranchAforward : STD_LOGIC_VECTOR(1 downto 0);
+signal BranchBforward : STD_LOGIC_VECTOR(1 downto 0);
+signal BranchAData : STD_LOGIC_VECTOR(31 downto 0);
+signal BranchBData : STD_LOGIC_VECTOR(31 downto 0);
 
 
 
@@ -348,3 +475,4 @@ signal stall : std_logic := '0';
 
 
 
+end func;
