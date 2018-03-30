@@ -4,7 +4,7 @@ USE std.textio.ALL; -- this library is used for file operations
 
 ENTITY MainMemory IS
 	GENERIC (
-		 fileAddressRd		:	STRING  := "Init.dat";
+		 fileAddressRd		:	STRING  := "program.txt";
 		 fileAddressWr		:	STRING  := "MemCon.dat";
 		 memSizeInWord		:	INTEGER := 256;
 		 numBytesInWord		:	INTEGER := 4;
@@ -42,7 +42,7 @@ signal blockMemInit : STD_LOGIC := '0';
 
 component MemoryInByte
 	GENERIC (
-		fileAddressRd : STRING := "Init.dat";
+		fileAddressRd : STRING := "program.txt";
 		fileAddressWr : STRING := "MemCon.dat";
 		memSize : INTEGER := 256;
 		numBitsInByte : INTEGER := 8;
