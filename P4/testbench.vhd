@@ -6,4 +6,6 @@ END testbench;
 
 ARCHITECTURE tb_behavior of testbench IS
 
+begin
+
 END tb_behavior;
