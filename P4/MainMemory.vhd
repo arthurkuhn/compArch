@@ -1,6 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-USE STD.textio.all; -- this library is used for file operations
+USE std.textio.ALL; -- this library is used for file operations
 
 ENTITY MainMemory IS
 	GENERIC (
@@ -203,7 +203,7 @@ wrDone <= '1' when wrDone0='1' OR wrDone1='1' OR wrDone2='1' OR wrDone3='1' else
 		blockMemInit <= '0';
 
 		-- initializes mem from a file
-		if(init'event and init='1') then
+		if(init'event AND init='1') then
 			--open file <read.txt> from specified location for rd mode
 			file_open(filePointer, fileAddressRd, READ_MODE);
 			file_open(fileWrPointer0, "Init0.dat", WRITE_MODE);
@@ -236,7 +236,7 @@ wrDone <= '1' when wrDone0='1' OR wrDone1='1' OR wrDone2='1' OR wrDone3='1' else
 
 		-- Writes to the file
 
-		elsif(dump'event and dump='1') then
+		elsif(dump'event AND dump='1') then
 			--open file <write.txt> from specified location for WRITE MODE
 			file_open(filePointer, fileAddressWr, WRITE_MODE);
 			file_open(fileRdPointer0, "MemCon0.dat", READ_MODE);
