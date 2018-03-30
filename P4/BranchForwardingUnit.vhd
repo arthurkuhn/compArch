@@ -13,7 +13,7 @@ ENTITY BranchForwardingUnit IS
 		MEMWBRegRd : in std_logic_vector(4 downto 0);
 		MEMWBRegWrite : in std_logic;
 		EXMEMRegRd : in std_logic_vector(4 downto 0);
-		EXMEMRegWrite : in std_logic;
+		EXMEMRegWrite : in std_logic
 		
 	);
 END BranchForwardingUnit;
@@ -52,8 +52,8 @@ begin
 				     BranchAforward <= "01";
 		end if;
 		if(MEMWBRegWrite = '1'
-			and(MEMWBRegRd /= "00000")
 			and (MEMWBRegRd = IFIDRegRt)
+			and(MEMWBRegRd /= "00000")
 			and(not(EXMEMRegWrite = '1' and (EXMEMRegRd = IFIDRegRt) and (EXMEMRegRd /= "00000")))) 
 			then
 				BranchBforward <= "01";
