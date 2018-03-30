@@ -25,7 +25,7 @@ END component;
 component MainMemory is
 	GENERIC (
 		 fileAddressRd		:	STRING  := "program.txt";
-		 fileAddressWr		:	STRING  := "MemCon.dat";
+		 fileAddressWr		:	STRING  := "memory.txt";
 		 memSizeInWord		:	INTEGER := 256;
 		 numBytesInWord		:	INTEGER := 4;
 		 numBitsInByte		:	INTEGER := 8;

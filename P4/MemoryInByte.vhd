@@ -5,7 +5,7 @@ USE std.textio.ALL;
 ENTITY MemoryInByte IS
 	GENERIC (
 		 fileAddressRd		:	STRING  := "program.txt";
-		 fileAddressWr		:	STRING  := "MemCon.dat";
+		 fileAddressWr		:	STRING  := "memory.txt";
 		 memSize			:	INTEGER := 256;
 		 numBitsInByte		:	INTEGER := 8;
 		 rdDelay			:	INTEGER := 0;
