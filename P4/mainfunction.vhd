@@ -12,7 +12,7 @@ constant clockPeriod : time := 1 ns;
 signal clockSig : std_logic := '0';
 signal clockMemory : std_logic := '0';
 
-component programCounter is
+component PC is
 	PORT 
 	(
 	addressI : in std_logic_vector(31 downto 0)

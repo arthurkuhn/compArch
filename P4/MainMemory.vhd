@@ -10,7 +10,7 @@ ENTITY MainMemory IS
 		 numBytesInWord		:	INTEGER := 4;
 		 numBitsInByte		:	INTEGER := 8;
 		 rdDelay			:	INTEGER := 0;
-		 wrDelay			:	INTEGER := 0;		
+		 wrDelay			:	INTEGER := 0	
 	);
 
 	PORT (
@@ -23,7 +23,7 @@ ENTITY MainMemory IS
 		init 				: 	IN STD_LOGIC;
 		dump				:	IN STD_LOGIC;
 		data				: 	INOUT STD_LOGIC_VECTOR((numBytesInWord*numBitsInByte)-1 downto 0);
-		wrDone				:	OUT STD_LOGIC;	
+		wrDone				:	OUT STD_LOGIC
 	);
 
 END MainMemory;
@@ -33,7 +33,7 @@ ARCHITECTURE behavioural of MainMemory IS
 signal data0, data1, data2, data3 : STD_LOGIC_VECTOR(numBitsInByte-1 downto 0);
 signal wrDone0, wrDone1, wrDone2, wrDone3 : STD_LOGIC;
 signal rdReady0, rdReady1, rdReady2, rdReady3: STD_LOGIC;
-signal re0, re1, re2, re3 : STD_LOGIC:
+signal re0, re1, re2, re3 : STD_LOGIC;
 signal we0, we1, we2, we3 : STD_LOGIC;
 
 signal byteOffset : INTEGER := 0;
@@ -47,7 +47,7 @@ component MemoryInByte
 		memSize : INTEGER := 256;
 		numBitsInByte : INTEGER := 8;
 		rdDelay : INTEGER := 0;
-		wrDelay : INTEGER := 0;
+		wrDelay : INTEGER := 0
 	);
 
 	PORT (
@@ -59,7 +59,7 @@ component MemoryInByte
 		init : IN STD_LOGIC;
 		dump : IN STD_LOGIC;
 		data : INOUT STD_LOGIC_VECTOR(numBitsInByte-1 downto 0);
-		rdReady : OUT STD_LOGIC;
+		rdReady : OUT STD_LOGIC
 	);
 END component;
 
@@ -187,7 +187,7 @@ wrDone <= '1' when wrDone0='1' OR wrDone1='1' OR wrDone2='1' OR wrDone3='1' else
 
 			file filePointer : text;
 			file fileWrPointer0, fileWrPointer1, fileWrPointer2, fileWrPointer3 : text;
-			file fileRdPointer0, fileRdPointer1, fileRdPointer2, fileRdPointer3;
+			file fileRdPointer0, fileRdPointer1, fileRdPointer2, fileRdPointer3 : text;
 			variable lineContent : string(1 to numBytesInWord*numBitsInByte);
 			variable lineContentRd, lineContentRd0, lineContentRd1, lineContentRd2, lineContentRd3 : string(1 to numBitsInByte);
 			variable lineNumRd, lineNumWr : line;

@@ -20,8 +20,8 @@ signal addressTmp : std_logic_vector(31 downto 0);
 signal instructionTmp : std_logic_vector(31 downto 0);
 
 BEGIN
-addressTmp <= address_in;
-instructionBuffer: process(instruction_in)
+addressTmp <= addressIn;
+instructionBuffer: process(instructionIn)
 begin
 	if(instructionIn /= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ") then
 		instructionTmp <= instructionIn;

@@ -35,7 +35,7 @@ ENTITY MEMWB IS
 			rdReadyOut		:	OUT STD_LOGIC;
 			dataOut			:	OUT STD_LOGIC_VECTOR(31 downto 0);
 
-			rdOut 			: 	OUT STD_LOGIC_VECTOR(4 downto 0);
+			rdOut 			: 	OUT STD_LOGIC_VECTOR(4 downto 0)
 
 		);
 END MEMWB;
@@ -95,7 +95,7 @@ begin
 		lowOut <= lowTmp;
 
 		wrDoneOut <= wrDoneTmp;
-		rdReadyOut <= rdReadyOut;
+		rdReadyOut <= rdReadyTmp;
 		dataOut <= dataTmp;
 
 		rdOut <= rdTmp;
