@@ -11,7 +11,7 @@ ENTITY IFID IS
 		instructionOut	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		addressIn		: IN STD_LOGIC_VECTOR  (31 DOWNTO 0);
 		addressOut		: OUT STD_LOGIC_VECTOR  (31 DOWNTO 0);
-		IFFlush			: IN STD_LOGIC;
+		IFFlush			: IN STD_LOGIC
 	);
 END IFID;
 
