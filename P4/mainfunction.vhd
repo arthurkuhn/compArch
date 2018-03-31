@@ -498,7 +498,8 @@ BEGIN
 		addressIn => addressIn,
 		addressOut => IFIDAddress,
 		instructionIn => dataInstMem,
-		instructionOut => IFIDInstruction
+		instructionOut => IFIDInstruction,
+		IFFlush => IFFlush
 	);
 
 	-- Main Control --
