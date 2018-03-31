@@ -312,7 +312,7 @@ signal reInstMem : STD_LOGIC := '0';
 signal rdReadyInstMem : STD_LOGIC := '0';
 signal initInstMem : STD_LOGIC := '0';
 signal dumpInstMem : STD_LOGIC := '0';
-signal addressInstMem : STD_LOGIC := '0';
+signal addressInstMem : STD_LOGIC_VECTOR(31 downto 0);
 signal dataInstMem : STD_LOGIC_VECTOR(31 downto 0);
 
 --Data Mem Signals
@@ -354,7 +354,7 @@ signal rd : std_logic_vector(4 downto 0);
 
 signal IFFlush : STD_LOGIC;
 signal IFIDWrite : STD_LOGIC;
-signal IFIDAddress : STD_LOGIC;
+signal IFIDAddress : STD_LOGIC_VECTOR (31 downto 0);
 signal IFIDInstruction : STD_LOGIC_VECTOR (31 downto 0);
 
 signal IDEXRegWrite	: STD_LOGIC;
@@ -406,7 +406,7 @@ signal EXMEMMemtoReg : std_logic;
 signal EXMEMBranch : std_logic;
 signal EXMEMMemRd : std_logic;
 signal EXMEMMemWrite : std_logic;
-signal EXMEMResult : std_logic(31 downto 0);
+signal EXMEMResult : std_logic_vector(31 downto 0);
 signal EXMEMHi : std_logic_vector(31 downto 0);
 signal EXMEMLo : std_logic_vector(31 downto 0);
 signal EXMEMIsZero : std_logic;
@@ -418,7 +418,7 @@ signal MEMWBRegWrite : std_logic;
 signal MEMWBMemtoReg : std_logic;
 signal MEMWBwrDone : std_logic;
 signal MEMWBrdReady : std_logic;
-signal MEMWBResult : std_logic(31 downto 0);
+signal MEMWBResult : std_logic_vector(31 downto 0);
 signal MEMWBHi : std_logic_vector(31 downto 0);
 signal MEMWBLo : std_logic_vector(31 downto 0);
 signal MEMWBIsZero : std_logic;
@@ -571,7 +571,7 @@ BEGIN
 		muxPcSource <= BranchAddress when '1',
 					   addressIn when others;
 
-	JumpAddress <= IFIDAddress(31 downto 28) && IFIDInstruction(25 downto 0) && "00";
+	JumpAddress <= IFIDAddress(31 downto 28) & IFIDInstruction(25 downto 0) & "00";
 
 	-- jump mux 2-1 --
 	with Jmp SELECT 
@@ -612,7 +612,6 @@ BEGIN
 
 	IDEXInst: IDEX PORT MAP (
 		clock => clockSig,
-
 		RegWriteIn => hazardControl(9),
 		MemtoRegIn => hazardControl(8),
 		BranchIn => hazardControl(7),
@@ -628,10 +627,9 @@ BEGIN
 		RsIn => rs,
 		RtIn => rt,
 		RdIn => rd,
-
 		RegWriteOut => IDEXRegWrite,
 		MemtoRegOut => IDEXMemtoReg,
-		BranchOut => IDEXBranch.
+		BranchOut => IDEXBranch,
 		MemReadOut => IDEXMemRead,
 		MemWriteOut => IDEXMemWrite,
 		ALUopOut => IDEXALUop,
