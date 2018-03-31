@@ -15,9 +15,9 @@ signal clockMemory : std_logic := '0';
 component PC is
 	PORT 
 	(
-	addressIn : in std_logic_vector(31 downto 0)
-	addressOut : out std_logic_vector(31 downto 0)
-	pcWrite : in std_logic
+	addressIn : in std_logic_vector(31 downto 0);
+	addressOut : out std_logic_vector(31 downto 0);
+	pcWrite : in std_logic;
 	clock : in std_logic
 	);
 END component; 
@@ -30,7 +30,7 @@ component memory is
 		 numBytesInWord		:	INTEGER := 4;
 		 numBitsInByte		:	INTEGER := 8;
 		 rdDelay			:	INTEGER := 0;
-		 wrDelay			:	INTEGER := 0;		
+		 wrDelay			:	INTEGER := 0	
 	);
 
 	PORT (
@@ -43,7 +43,7 @@ component memory is
 		init 				: 	IN STD_LOGIC;
 		dump				:	IN STD_LOGIC;
 		data				: 	INOUT STD_LOGIC_VECTOR((numBytesInWord*numBitsInByte)-1 downto 0);
-		wrDone				:	OUT STD_LOGIC;	
+		wrDone				:	OUT STD_LOGIC	
 	);
 
 END component;
@@ -288,7 +288,7 @@ component EXMEM IS
 		HiOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		LowOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		ZeroOut : OUT STD_LOGIC;
-		DataBOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+		DataBOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
     		AddressOut: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		RdOut : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
 	);
@@ -466,7 +466,7 @@ BEGIN
 		pcWrite => pcWrite,
 		addressIn => JumpMuxOut,
 		addressOut => pcAddress
-	)
+	);
 
 	-- Instruction Mem --
 	addressInstMem <= to_integer(unsigned(pcAddress));
@@ -479,11 +479,9 @@ BEGIN
 			numBitsInByte => 8,
 			rdDelay => 0,
 			wrDelay => 0
-		);
-
-		PORT MAP (
+		) PORT MAP (
 			clock => clockMemory,
-			address => addressInstMem,
+			address => to_integer(addressInstMem),
 			wordByte => wordByteInstMem,
 			we => '0',
 			re => reInstMem,
@@ -493,7 +491,7 @@ BEGIN
 			data => dataInstMem
 		);
 
-	IFFlush <= (PCSrc or Jump) AND NOT(stall);
+	IFFlush <= (PCSrc or Jmp) AND NOT(stall);
 	IFIDInst : IFID PORT MAP (
 		clock => clockSig,
 		IFIDWrite => IFIDWrite,
@@ -529,14 +527,14 @@ BEGIN
 		writelohi => writelohi,
 		readdata1 => readdata1,
 		readdata2 => readdata2,
-		readReg1 => IFIDInstruction(25 downto 21);
-		readReg2 => IFIDInstruction(20 downto 16);
+		readReg1 => IFIDInstruction(25 downto 21),
+		readReg2 => IFIDInstruction(20 downto 16),
 		regwrite => MEMWBRegWrite,
 		writeReg => MEMWBRegRd,
 		writedata => MemtoRegMux,
 		clock => clockSig,
 		init => InitReg
-	)
+	);
 
 	-- MUX for Data A
 	WITH BranchAforward SELECT
@@ -562,7 +560,8 @@ BEGIN
 		DataB => ALU2ShiftDatabb,
 		Control => "0010", --add
 		Shamt => IFIDInstruction(10 downto 6),
-		Result => BranchAddress
+		Result => BranchAddress,
+		Clk => clockSig
 	);
 
 	PCSrc <= Bch AND (IDZero XOR NotZero); --used to select line for branch mux
@@ -572,7 +571,7 @@ BEGIN
 		muxPcSource <= BranchAddress when '1',
 					   addressIn when others;
 
-	JumpAddress <= IFIDAddress(31 downto 28) & IFIDInstruction(25 downto 0) && "00";
+	JumpAddress <= IFIDAddress(31 downto 28) && IFIDInstruction(25 downto 0) && "00";
 
 	-- jump mux 2-1 --
 	with Jmp SELECT 
@@ -652,18 +651,6 @@ BEGIN
 		operation => operation,
 		writeLOHI => writelohi,
 		readLOHI => readlohi
-	);
-
-	BchFwdUnitInst : BranchForwardingUnit PORT MAP (
-		BranchAforward,
-		BranchBforward,
-		Branch,
-		IFID_RegRs,
-		IFID_RegRt,
-		EXMEMRegWrite,
-		EXMEMRegRd,
-		MEMWBRegWrite,
-		MEMWBRegRd
 	);
 
 	FwdUnitInst : ForwardingUnit PORT MAP (
