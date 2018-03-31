@@ -52,7 +52,7 @@ signal tempResult : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal tempHi : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal tempLow : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal tempZero : STD_LOGIC;
-signal tempDatabase : STD_LOGIC_VECTOR(31 DOWNTO 0);
+signal tempDataB : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal tempAddress : STD_LOGIC_VECTOR(31 DOWNTO 0);
 signal tempRd : STD_LOGIC_VECTOR(4 DOWNTO 0);
 
