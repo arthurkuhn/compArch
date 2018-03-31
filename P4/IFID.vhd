@@ -33,7 +33,6 @@ IDIF: process (clock)
 begin
 	if (clock'event AND clock = '1') then
 		if(IFIDWrite = '1') then
-
 			addressOut <= addressTmp;
 			instructionOut <= instructionTmp;			
 		end if;
