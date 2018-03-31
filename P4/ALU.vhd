@@ -5,8 +5,8 @@ USE IEEE.NUMERIC_STD.ALL;
 entity ALU is
 	PORT (
 		CLK	: in  STD_LOGIC;
-		InA     : in  STD_LOGIC_VECTOR(31 downto 0);
-        InB     : in  STD_LOGIC_VECTOR(31 downto 0);
+		DataA     : in  STD_LOGIC_VECTOR(31 downto 0);
+        DataB     : in  STD_LOGIC_VECTOR(31 downto 0);
         Control : in  STD_LOGIC_VECTOR(3  downto 0);
         Shamt   : in  STD_LOGIC_VECTOR(4  downto 0);
         Result  : out STD_LOGIC_VECTOR(31 downto 0);
@@ -42,11 +42,11 @@ begin
     -- The operations are synthesized first, a multiplexer is then used to select the correct output
 
     -- INTEGER OPERATIONS --
-    addResult <= to_integer(signed(InA)) + to_integer(signed(InB));
-    subResult <= to_integer(signed(InA)) - to_integer(signed(InB));
-    multResult <= to_integer(signed(InA)) * to_integer(signed(InB));
-    divResult	 <= to_integer(signed(InA)) / to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
-    divRemainder <= to_integer(signed(InA)) mod to_integer(signed(InB)) when to_integer(signed(InB)) /= 0;
+    addResult <= to_integer(signed(DataA)) + to_integer(signed(DataB));
+    subResult <= to_integer(signed(DataA)) - to_integer(signed(DataB));
+    multResult <= to_integer(signed(DataA)) * to_integer(signed(DataB));
+    divResult	 <= to_integer(signed(DataA)) / to_integer(signed(DataB)) when to_integer(signed(DataB)) /= 0;
+    divRemainder <= to_integer(signed(DataA)) mod to_integer(signed(DataB)) when to_integer(signed(DataB)) /= 0;
 
     -- CONVERSIONS --
     sltOut <= std_logic_vector(to_signed(subResult, 32)); -- MSB gives the output
@@ -57,16 +57,16 @@ begin
     -- Output Multiplexer
     with control select
         aluOut <=
-            InA AND InB                                                             when AND_OP,
-            InA OR  InB 		                                                    when OR_OP,
+            DataA AND DataB                                                             when AND_OP,
+            DataA OR  DataB 		                                                    when OR_OP,
             std_logic_vector(to_signed(subResult, 32)) 		                        when SUB_OP,
             std_logic_vector(to_signed(addResult, 32)) 		                        when ADD_OP,
             std_logic_vector(unsigned(sltOut) srl 31) 	                        when SET_LT, -- The MSB is 1 if negative of 0 if positve
-            InA NOR InB 								                            when NOR_OP,
-            InA XOR InB 							                                when XOR_OP,
-            std_logic_vector(unsigned(InB) sll to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_L,
-            std_logic_vector(unsigned(InB) srl to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_R,
-            to_stdlogicvector(to_bitvector(InA) sra to_integer(unsigned(shamt)))	when SHIFT_R,
+            DataA NOR DataB 								                            when NOR_OP,
+            DataA XOR DataB 							                                when XOR_OP,
+            std_logic_vector(unsigned(DataB) sll to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_L,
+            std_logic_vector(unsigned(DataB) srl to_integer(unsigned(shamt)))	        when SHIFT_LOGICAL_R,
+            to_stdlogicvector(to_bitvector(DataA) sra to_integer(unsigned(shamt)))	when SHIFT_R,
             std_logic_vector(to_signed(addResult, 32)) 					            when OTHERS;
 
     -- Slt Comparaison

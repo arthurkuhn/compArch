@@ -13,7 +13,7 @@ ENTITY detectHazard IS
 		IFIDRs : in std_logic_vector (4 downto 0);
 		IFIDWrite: out std_logic;
 		PCWrite : out std_logic;
-		pause : out std_logic	
+		Stall : out std_logic	
 
 	);
 END detectHazard;
@@ -26,7 +26,7 @@ Hazard : process(IDEXMemRead, Branch, IDEXRt, IFIDRs, IFIDRt)
 begin
 IFIDWrite <= '1';
 PCWrite <= '1';
-pause <= '0';
+Stall <= '0';
 
 if((IDEXMemRead = '1' or Branch = '1') and
 	((IDEXRt = IFIDRs) or
@@ -34,7 +34,7 @@ if((IDEXMemRead = '1' or Branch = '1') and
 (IDEXRt /= "00000") then
 IFIDWrite <= '0';
 PCWrite <= '0';
-pause <= '1';
+Stall <= '1';
 
 end if;
 end process;

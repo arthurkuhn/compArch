@@ -6,7 +6,7 @@ ENTITY mainFunction is
 
 END mainFunction;
 
-Architecture func of mainFunction is 
+Architecture main_behavior of mainFunction is 
 
 constant clockPeriod : time := 1 ns;
 signal clockSig : std_logic := '0';
@@ -15,8 +15,8 @@ signal clockMemory : std_logic := '0';
 component PC is
 	PORT 
 	(
-	addressI : in std_logic_vector(31 downto 0)
-	addressO : out std_logic_vector(31 downto 0)
+	addressIn : in std_logic_vector(31 downto 0)
+	addressOut : out std_logic_vector(31 downto 0)
 	pcWrite : in std_logic
 	clock : in std_logic
 	);
@@ -104,8 +104,8 @@ end component;
 component ALU is
 	Port (
 		CLK	: in  STD_LOGIC;
-		InA     : in  STD_LOGIC_VECTOR(31 downto 0);
-        InB     : in  STD_LOGIC_VECTOR(31 downto 0);
+		DataA     : in  STD_LOGIC_VECTOR(31 downto 0);
+        DataB     : in  STD_LOGIC_VECTOR(31 downto 0);
         Control : in  STD_LOGIC_VECTOR(3  downto 0);
         Shamt   : in  STD_LOGIC_VECTOR(4  downto 0);
         Result  : out STD_LOGIC_VECTOR(31 downto 0);
@@ -135,8 +135,7 @@ component detectHazard IS
 		IFIDRs : in std_logic_vector (4 downto 0);
 		IFIDWrite: out std_logic;
 		PCWrite : out std_logic;
-		pause : out std_logic	
-
+		Stall : out std_logic	
 	);
 END component;
 
@@ -227,7 +226,7 @@ component MEMWB IS
 
 			-- Inputs
 			RegWriteIn		:	IN STD_LOGIC;		
-			MemToRegIn		:	IN STD_LOGIC;
+			MemtoRegIn		:	IN STD_LOGIC;
 
 			zeroIn			: 	IN STD_LOGIC;
 			resultIn		:	IN STD_LOGIC_VECTOR(31 downto 0);
@@ -236,13 +235,13 @@ component MEMWB IS
 
 			wrDoneIn		:	IN STD_LOGIC;
 			rdReadyIn		:	IN STD_LOGIC;
-			DataIn			:	IN STD_LOGIC_VECTOR(31 downto 0);
+			dataIn			:	IN STD_LOGIC_VECTOR(31 downto 0);
 
 			rdIn 			:	IN STD_LOGIC_VECTOR(4 downto 0);
 
 			--Outputs
 			RegWriteOut		:	OUT STD_LOGIC;
-			MemToRegOut		:	OUT STD_LOGIC;
+			MemtoRegOut		:	OUT STD_LOGIC;
 
 			zeroOut			: 	OUT STD_LOGIC;
 			resultOut		:	OUT STD_LOGIC_VECTOR(31 downto 0);
@@ -273,7 +272,7 @@ component EXMEM IS
 		HiIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		LowIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		ZeroIn : IN STD_LOGIC;
-		DatabaseIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+		DataBIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		AddressIn: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		RdIn : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
 
@@ -289,7 +288,7 @@ component EXMEM IS
 		HiOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		LowOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		ZeroOut : OUT STD_LOGIC;
-		DatabaseOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+		DataBOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
     		AddressOut: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		RdOut : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
 	);
@@ -298,7 +297,7 @@ END component;
 
 --PC Signals
 
-signal	addressI : std_logic_vector(31 downto 0);
+signal	addressIn : std_logic_vector(31 downto 0);
 signal	pcWrite : std_logic := '0';
 signal muxPcSource : std_logic_vector(31 downto 0);
 signal pcAddress  : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
@@ -465,8 +464,8 @@ BEGIN
 	(
 		clock => clockSig,
 		pcWrite => pcWrite,
-		addressI => JumpMuxOut,
-		addressO => pcAddress
+		addressIn => JumpMuxOut,
+		addressOut => pcAddress
 	)
 
 	-- Instruction Mem --
@@ -496,9 +495,9 @@ BEGIN
 
 	IFFlush <= (PCSrc or Jump) AND NOT(stall);
 	IFIDInst : IFID PORT MAP (
-		clock => clockSignal,
+		clock => clockSig,
 		IFIDWrite => IFIDWrite,
-		addressIn => addressI,
+		addressIn => addressIn,
 		addressOut => IFIDAddress,
 		instructionIn => dataInstMem,
 		instructionOut => IFIDInstruction
@@ -535,7 +534,7 @@ BEGIN
 		regwrite => MEMWBRegWrite,
 		writeReg => MEMWBRegRd,
 		writedata => MemtoRegMux,
-		clock => clockSignal,
+		clock => clockSig,
 		init => InitReg
 	)
 
@@ -559,53 +558,359 @@ BEGIN
 	ALU2ShiftDatabb <= signExtend(29 downto 0) & "00";
 	AluJmp : ALU
 	PORT MAP (
-		InA => IFIDAddress,
-		InB => ALU2ShiftDatabb,
+		DataA => IFIDAddress,
+		DataB => ALU2ShiftDatabb,
 		Control => "0010", --add
 		Shamt => IFIDInstruction(10 downto 6),
 		Result => BranchAddress
 	);
 
+	PCSrc <= Bch AND (IDZero XOR NotZero); --used to select line for branch mux
 
+	-- branch MUX 2-1 --
+	with PCSrc SELECT
+		muxPcSource <= BranchAddress when '1',
+					   addressIn when others;
 
+	JumpAddress <= IFIDAddress(31 downto 28) & IFIDInstruction(25 downto 0) && "00";
+
+	-- jump mux 2-1 --
+	with Jmp SELECT 
+		JumpMuxOut <= JumpAddress when '1',
+					  muxPcSource when others;
+
+	-- sign extend --
+	with LUI SELECT
+		signExtend(15 downto 0) <= IFIDInstruction(15 downto 0) when '0',
+		(others => '0') when '1',
+		(others => 'X') when others;
+
+	with LUI SELECT
+		signExtend(31 downto 16) <= (others => IFIDInstruction(15)) when '0',
+		IFIDInstruction(15 downto 0) when '1',
+		(others => 'X') when others;
+
+	rs <= IFIDInstruction(25 downto 21);
+	rt <= IFIDInstruction(20 downto 16);
+	rd <= IFIDInstruction(15 downto 11);
+
+	-- hazard detection --
+	HazardDetectionInst: detectHazard
+	PORT MAP (
+		IDEXMemRead => IDEXMemRead,
+		Branch => Bch,
+		IDEXRt => IDEXRt,
+		IFIDRs => rs,
+		IFIDWrite => IFIDWrite,
+		PCWrite => pcWrite,
+		Stall => stall
+	);
+
+	with stall SELECT
+		hazardControl <= RegWrite & MemToReg & Bch & MemRead & MemWrite & ALUOp & RegDst & AluSrc when '0',
+		"0000000000" when '1',
+		(others => 'X') when others;
+
+	IDEXInst: IDEX PORT MAP (
+		clock => clockSig,
+
+		RegWriteIn => hazardControl(9),
+		MemtoRegIn => hazardControl(8),
+		BranchIn => hazardControl(7),
+		MemReadIn => hazardControl(6),
+		MemWriteIn => hazardControl(5),
+		ALUopIn => hazardControl(4 downto 2),
+		RegDstIn => hazardControl(1),
+		ALUsrcIn => hazardControl(0),
+		addressIn => IFIDAddress,
+		readdata1In => readdata1,
+		readdata2In => readdata2,
+		signextendIn => signExtend,
+		RsIn => rs,
+		RtIn => rt,
+		RdIn => rd,
+
+		RegWriteOut => IDEXRegWrite,
+		MemtoRegOut => IDEXMemtoReg,
+		BranchOut => IDEXBranch.
+		MemReadOut => IDEXMemRead,
+		MemWriteOut => IDEXMemWrite,
+		ALUopOut => IDEXALUop,
+		RegDstOut => IDEXRegDst,
+		ALUsrcOut => IDEXALUsrc,
+		addressOut => IDEXAddress,
+		readdata1Out => IDEXreaddata1,
+		readdata2Out => IDEXreaddata2,
+		RsOut => IDEXRs,
+		RtOut => IDEXRt,
+		RdOut => IDEXRd
+	);
+
+	ALUControlInst: ALU_control PORT MAP (
+		ALUOp => IDEXALUop,
+		funct => IDEXsignextend(5 downto 0),
+		operation => operation,
+		writeLOHI => writelohi,
+		readLOHI => readlohi
+	);
+
+	BchFwdUnitInst : BranchForwardingUnit PORT MAP (
+		BranchAforward,
+		BranchBforward,
+		Branch,
+		IFID_RegRs,
+		IFID_RegRt,
+		EXMEMRegWrite,
+		EXMEMRegRd,
+		MEMWBRegWrite,
+		MEMWBRegRd
+	);
+
+	FwdUnitInst : ForwardingUnit PORT MAP (
+		Aforward => Aforward,
+		Bforward => Bforward,
+		IDEXRegRs => IDEXRs,
+		IDEXRegRt => IDEXRt,
+		MEMWBRegWrite => MEMWBRegWrite,
+		MEMWBRegRd => MEMWBRegRd,
+		EXMEMRegWrite => EXMEMRegWrite,
+		EXMEMRegRd => EXMEMRegRd
+	);
+
+	-- MUX for DataA
+	with Aforward SELECT
+		DataA <= IDEXreaddata1 when "00",
+			   MemtoRegMux when "01",
+			   EXMEMResult when "10",
+			   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" when others;
+
+	 -- MUX for DataB
+	with Bforward SELECT
+		DataB <= IDEXreaddata2 when "00",
+			   MemtoRegMux when "01",
+			   EXMEMResult when "10",
+			   "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" when others;
+
+	with IDEXALUsrc SELECT
+		ALUSrcMux <= DataB when '0',
+					 IDEXsignextend when '1',
+					 "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" when others;
+
+	--MUX for IDEXRegRd
+	with IDEXRegDst SELECT
+		IDEXRegRead <= IDEXRt when '0',
+					   IDEXRd when others;
+
+	ALUInst: ALU PORT MAP (
+		DataA => DataA,
+		DataB => DataB,
+		Control => operation,
+		Shamt => IDEXsignextend(10 downto 6),
+		Result => Result,
+		Hi => Hi,
+		Lo => Lo,
+		IsZero => IsZero
+	);
+
+	-- WriteData MUX 2-1 --
+	with readlohi SELECT
+		readlohimux <= Result when "00",
+					   RegHi when "10",
+					   RegLo when "11",
+					   (others => "X") when others;
+
+	EXMEMInst: EXMEM PORT MAP (
+		clock => clockSig,
+
+		RegisterIn => IDEXRegWrite,
+		MemoryRegisterIn => IDEXMemtoReg,
+		BranchIn => IDEXBranch,
+		MemoryReadIn => IDEXMemRead,
+		MemoryWriteIn => IDEXMemWrite,
+		ResultIn => readlohimux,
+		HiIn => Hi,
+		LowIn => Lo,
+		ZeroIn => IsZero,
+		DataBIn => DataB,
+		AddressIn => BranchAddress,
+		RdIn => IDEXRegRead,
+
+		RegisterOut => EXMEMRegWrite,
+		MemoryRegisterOut => EXMEMMemtoReg,
+		BranchOut => EXMEMBranch,
+		MemoryReadOut => EXMEMMemRd,
+		MemoryWriteOut => EXMEMMemWrite,
+		ResultOut => EXMEMResult,
+		HiOut => EXMEMHi,
+		LowOut => EXMEMLo,
+		ZeroOut => EXMEMIsZero,
+		DataBOut => EXMEMDataB,
+		AddressOut => EXMEMAddress,
+		RdOut => EXMEMRegRd
+	);
+
+	DataMemory: MainMemory
+		GENERIC MAP (
+			fileAddressRd => "Init.dat",
+			fileAddressWr => "MemData.dat",
+			memSizeInWord => 2048,
+			numBytesInWord => 4,
+			numBitsInByte => 8,
+			rdDelay => 0,
+			wrDelay => 0
+		)
+
+		PORT MAP (
+			clock => clockMemory,
+			address => addressDataMem,
+			wordByte => wordByteDataMem,
+			we => weDataMem,
+			re => reDataMem,
+			rdReady => rdReadyDataMem,
+			wrDone => wrDoneDataMem,
+			data => data,
+			init => initDataMem,
+			dump => dumpDataMem
+		);
+
+	MEMWBInst: MEMWB PORT MAP (
+		clock => clockSig,
 		
+		RegWriteIn => EXMEMRegWrite,
+		MemtoRegIn => EXMEMMemtoReg,
+		wrDoneIn => wrDoneDataMem,
+		rdReadyIn => rdReadyDataMem,
+		dataIn => MDR,
+		resultIn => EXMEMResult,
+		highIn => EXMEMHi,
+		lowIn => EXMEMLo,
+		zeroIn => EXMEMIsZero,
+		rdIn => EXMEMRegRd,
 
+		RegWriteOut => MEMWBRegWrite,
+		MemtoRegOut => MEMWBMemtoReg,
+		wrDoneOut => MEMWBwrDone,
+		rdReadyOut => MEMWBrdReady,
+		dataOut => MEMWBData,
+		resultOut => MEMWBResult,
+		highOut => MEMWBHi,
+		lowOut => MEMWBLo,
+		zeroOut => MEMWBIsZero,
+		rdOut => MEMWBRegRd
+	);
 
+	with MEMWBMemtoReg SELECT
+		MemtoRegMux <= MEMWBData when '1',
+					   MEMWBResult when '0',
+					   (others => 'X') when others;
 
+	-- Main processes
+	InstructionProc: process(clockSig, clockMemory)
+	begin
+		if(clockMemory'event AND clockMemory='1') then
+			case instState is
+				when init => pcWrite <= '0';
+							 initInstMem <= '1';
+							 pcWrite <= '0';
+							 instState <= rdInst1;
+				when rdInst1 => pcWrite <= '1';
+								reInstMem <= '1';
+								initInstMem <= '0';
 
+					if(rdReadyInstMem = '1') then
+						addressIn <= std_logic_vector(to_unsigned(addressInstMem + 4, 32));
+						instState <= rdInst2;
+					end if;
 
+				when others => 
 
+			end case;
+		end if;
 
+		if(clockSig'event AND clockSig = '1' AND instState = rdInst2) then
+			instState <= rdInst1;
+		end if;
 
+	end process;
 
+	DataProcess: process (clockMemory, clockSig)
+   
+   	begin		
+      if(clockMemory'event and clockMemory='1') then
+			case dataState is
+				when init =>
+					initDataMem <= '1';
+					dataState <= idle;
+					InitReg  <='1';
 
+				when idle =>
+					InitReg <='0';
+					data <= (others=>'Z');
+					initDataMem <= '0'; 
+					reDataMem<='0';
+					weDataMem <='0';
+					dumpDataMem  <= '0'; 
 
+					if(EXMEMMemRd  = '1') then
+						addressDataMem  <= to_integer(unsigned(EXMEMResult));
+						weDataMem  <='0';
+						reDataMem <='1';
+						initDataMem <= '0';
+						dumpDataMem  <= '0';
+						dataState <= rdMem1;
+					end if;
 
+					if(EXMEMMemWrite  = '1') then
+						addressDataMem  <= to_integer(unsigned(EXMEMResult));
+						weDataMem  <='1';
+						reDataMem <='0';
+						initDataMem <= '0';
+						dumpDataMem  <= '0';
+						data <= EXMEMDataB ;
+						dataState <= wrMem1;
+					end if;
 
+				when wrMem1 =>					
+					if (wrDoneDataMem  = '1') then -- o/p is ready on the mem bus
+						dataState <= dump; --write completed, go to the dump state 
+					else
+						dataState <= wrMem1; -- remain in this state till it sees rd_ready='1';
+					end if;
 
+				when fin =>
+					initDataMem <= '0'; 
+					reDataMem<='0';
+					weDataMem <='0';
+					dumpDataMem  <= '0'; 
 
+				when others =>
 
+			end case;
+		end if;
 
+		if(clockSig'event and clockSig = '1') then
+			case dataState is
+				when dump =>
+					initDataMem <= '0'; 
+					reDataMem<='0';
+					weDataMem <='0';
+					dumpDataMem  <= '1';
+					dataState <= idle;
 
+				when rdMem1 =>
+				  	if (rdReadyDataMem = '1') then -- o/p is ready on mem bus
+						MDR <= data;
+						dataState <= idle; --read completes, go to test state write 
+						reDataMem <='0';
+					else
+						dataState <= rdMem1; -- remain in this state till it sees rd_ready='1';
+					end if;
 
+				when others =>
 
+			end case;
+		end if;
+		
+   end process;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-end func;
+end main_behavior;

@@ -9,7 +9,7 @@ ENTITY MEMWB IS
 
 			-- Inputs
 			RegWriteIn		:	IN STD_LOGIC;		
-			MemToRegIn		:	IN STD_LOGIC;
+			MemtoRegIn		:	IN STD_LOGIC;
 
 			zeroIn			: 	IN STD_LOGIC;
 			resultIn		:	IN STD_LOGIC_VECTOR(31 downto 0);
@@ -18,13 +18,13 @@ ENTITY MEMWB IS
 
 			wrDoneIn		:	IN STD_LOGIC;
 			rdReadyIn		:	IN STD_LOGIC;
-			DataIn			:	IN STD_LOGIC_VECTOR(31 downto 0);
+			dataIn			:	IN STD_LOGIC_VECTOR(31 downto 0);
 
 			rdIn 			:	IN STD_LOGIC_VECTOR(4 downto 0);
 
 			--Outputs
 			RegWriteOut		:	OUT STD_LOGIC;
-			MemToRegOut		:	OUT STD_LOGIC;
+			MemtoRegOut		:	OUT STD_LOGIC;
 
 			zeroOut			: 	OUT STD_LOGIC;
 			resultOut		:	OUT STD_LOGIC_VECTOR(31 downto 0);
@@ -59,7 +59,7 @@ signal rdTmp 			:	STD_LOGIC_VECTOR(4 downto 0);
 BEGIN
 
 	RegWriteTmp <=	RegWriteIn;
-	MemToRegTmp <=	MemToRegIn;
+	MemToRegTmp <=	MemtoRegIn;
 
 	zeroTmp <=	zeroIn;
 	resultTmp <= resultIn;
@@ -87,7 +87,7 @@ begin
 	if(clock'event AND clock = '1') then
 
 		RegWriteOut <= RegWriteTmp;
-		MemToRegOut <= MemToRegTmp;
+		MemtoRegOut <= MemToRegTmp;
 
 		zeroOut <= zeroTmp;
 		resultOut <= resultTmp;

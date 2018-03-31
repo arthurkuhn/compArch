@@ -17,7 +17,7 @@ entity exmem IS
 		HiIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		LowIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		ZeroIn : IN STD_LOGIC;
-		DatabaseIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+		DataBIn : IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 		AddressIn: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 		RdIn : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
 
@@ -33,7 +33,7 @@ entity exmem IS
 		HiOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		LowOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		ZeroOut : OUT STD_LOGIC;
-		DatabaseOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+		DataBOut : OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
     		AddressOut: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		RdOut : OUT STD_LOGIC_VECTOR(4 DOWNTO 0)
 	);
@@ -69,7 +69,7 @@ tempLow <= LowIn;
 tempZero <= ZeroIn;
 tempAddress <= AddressIn;
 tempRD <= RdIn;
-tempDatabase <= DatabaseIn;
+tempDataB <= DataBIn;
 
 
 IFID : process (clock)
@@ -86,7 +86,7 @@ begin
 		HiOut <= tempHi;
 		LowOut <= tempLow;
 		ZeroOut <= tempZero;
-		DatabaseOut <= tempDatabase;
+		DataBOut <= tempDataB;
 		AddressOut <= tempAddress;
 		RdOut <= tempRd;
 	end if;
