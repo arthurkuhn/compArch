@@ -601,6 +601,7 @@ BEGIN
 		Branch => Bch,
 		IDEXRt => IDEXRt,
 		IFIDRs => rs,
+		IFIDRt => rt,
 		IFIDWrite => IFIDWrite,
 		PCWrite => pcWrite,
 		Stall => stall
