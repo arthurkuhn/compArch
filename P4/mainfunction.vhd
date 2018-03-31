@@ -375,9 +375,9 @@ signal IDEXRt : STD_LOGIC_VECTOR(4 downto 0);
 signal IDEXRegRead : STD_LOGIC_VECTOR(4 downto 0);
 
 -- ALU Control Signals
-signal op : STD_LOGIC_VECTOR(3 downto 0);
+signal aluControl : STD_LOGIC_VECTOR(3 downto 0);
 signal writelohi : STD_LOGIC;
-signal readlohi : STD_LOGIC;
+signal readlohi : STD_LOGIC_VECTOR(1 downto 0);
 signal readlohimux : STD_LOGIC_VECTOR(31 downto 0);
 
 -- ALU Signals
@@ -646,7 +646,7 @@ BEGIN
 	ALUControlInst: ALU_control PORT MAP (
 		ALUOp => IDEXALUop,
 		funct => IDEXsignextend(5 downto 0),
-		operation => operation,
+		operation => aluControl,
 		writeLOHI => writelohi,
 		readLOHI => readlohi
 	);
@@ -689,7 +689,7 @@ BEGIN
 	ALUInst: ALU PORT MAP (
 		DataA => DataA,
 		DataB => DataB,
-		Control => operation,
+		Control => aluControl,
 		Shamt => IDEXsignextend(10 downto 6),
 		Result => Result,
 		Hi => Hi,
