@@ -77,7 +77,8 @@ component IFID is
 		instructionIn	: IN STD_LOGIC_VECTOR  (31 DOWNTO 0);
 		instructionOut	: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		addressIn		: IN STD_LOGIC_VECTOR  (31 DOWNTO 0);
-		addressOut		: OUT STD_LOGIC_VECTOR  (31 DOWNTO 0)
+		addressOut		: OUT STD_LOGIC_VECTOR  (31 DOWNTO 0);
+		IFFlush			: IN STD_LOGIC
 	);
 END component;
 
@@ -110,7 +111,7 @@ component ALU is
         Result  : out STD_LOGIC_VECTOR(31 downto 0);
         IsZero  : out STD_LOGIC;
         Hi      : out STD_LOGIC_VECTOR(31 downto 0);
-        Lo      : out STD_LOGIC_VECTOR(31 downto 0);
+        Lo      : out STD_LOGIC_VECTOR(31 downto 0)
 	);
 end component;
 
@@ -198,7 +199,7 @@ component ForwardingUnit IS
 		MEMWBRegRd : std_logic_vector(4 downto 0);
 		MEMWBRegWrite : in std_logic;
 		EXMEMRegRd : std_logic_vector(4 downto 0);
-		EXMEMRegWrite : in std_logic;
+		EXMEMRegWrite : in std_logic
 	);
 END component;
 
@@ -214,7 +215,7 @@ component BranchForwardingUnit IS
 		MEMWBRegRd : in std_logic_vector(4 downto 0);
 		MEMWBRegWrite : in std_logic;
 		EXMEMRegRd : in std_logic_vector(4 downto 0);
-		EXMEMRegWrite : in std_logic;
+		EXMEMRegWrite : in std_logic
 		
 	);
 END component;
@@ -252,7 +253,7 @@ component MEMWB IS
 			rdReadyOut		:	OUT STD_LOGIC;
 			dataOut			:	OUT STD_LOGIC_VECTOR(31 downto 0);
 
-			rdOut 			: 	OUT STD_LOGIC_VECTOR(4 downto 0);
+			rdOut 			: 	OUT STD_LOGIC_VECTOR(4 downto 0)
 
 		);
 END component;	
@@ -310,6 +311,7 @@ signal instState : instStateType := init;
 signal wordByteInstMem : STD_LOGIC := '1';
 signal reInstMem : STD_LOGIC := '0';
 signal rdReadyInstMem : STD_LOGIC := '0';
+signal initInstMem : STD_LOGIC := '0';
 signal dumpInstMem : STD_LOGIC := '0';
 signal addressInstMem : STD_LOGIC := '0';
 signal dataInstMem : STD_LOGIC_VECTOR(31 downto 0);
@@ -374,6 +376,12 @@ signal IDEXRt : STD_LOGIC_VECTOR(4 downto 0);
 signal IDEXRegRead : STD_LOGIC_VECTOR(4 downto 0);
 
 -- ALU Control Signals
+signal op : STD_LOGIC_VECTOR(3 downto 0);
+signal writelohi : STD_LOGIC;
+signal readlohi : STD_LOGIC;
+signal readlohimux : STD_LOGIC_VECTOR(31 downto 0);
+
+-- ALU Signals
 signal DataA : std_logic_vector(31 downto 0);
 signal DataB : std_logic_vector(31 downto 0);
 signal ALUSrcMux : std_logic_vector(31 downto 0);
@@ -432,10 +440,135 @@ signal BranchBforward : STD_LOGIC_VECTOR(1 downto 0);
 signal BranchAData : STD_LOGIC_VECTOR(31 downto 0);
 signal BranchBData : STD_LOGIC_VECTOR(31 downto 0);
 
+BEGIN
+
+	-- clk process definitions
+	clock_process : process
+	begin 
+		clockSig <= '0';
+		wait for clockPeriod/2;
+		clockSig <= '1';
+		wait for clockPeriod/2;
+	end process;
+
+	-- mem clock process defs
+	mem_clock_process : process
+	begin
+		clockMemory <= '0';
+		wait for clockPeriod/8;
+		clockMemory <= '1';
+		wait for clockPeriod/8;
+	end process;
+
+	--map PC
+	PCInst : programCounter PORT MAP
+	(
+		clock => clockSig,
+		pcWrite => pcWrite,
+		addressI => JumpMuxOut,
+		addressO => pcAddress
+	)
+
+	-- Instruction Mem --
+	addressInstMem <= to_integer(unsigned(pcAddress));
+	InstMem: MainMemory
+		GENERIC MAP(
+			fileAddressRd => "Init.dat",
+			fileAddressWr => "MemCon.dat",
+			memSizeInWord => 2048,
+			numBytesInWord => 4,
+			numBitsInByte => 8,
+			rdDelay => 0,
+			wrDelay => 0
+		);
+
+		PORT MAP (
+			clock => clockMemory,
+			address => addressInstMem,
+			wordByte => wordByteInstMem,
+			we => '0',
+			re => reInstMem,
+			rdReady => rdReadyInstMem,
+			init => initInstMem,
+			dump => dumpInstMem,
+			data => dataInstMem
+		);
+
+	IFFlush <= (PCSrc or Jump) AND NOT(stall);
+	IFIDInst : IFID PORT MAP (
+		clock => clockSignal,
+		IFIDWrite => IFIDWrite,
+		addressIn => addressI,
+		addressOut => IFIDAddress,
+		instructionIn => dataInstMem,
+		instructionOut => IFIDInstruction
+	);
+
+	-- Main Control --
+	ControlInst : controller PORT MAP (
+		Clk => clockMemory,
+		Inst => IFIDInstruction(31 downto 26),
+		RegDst => RegDst,
+		Jmp => Jmp,
+		Bch => Bch,
+		MemRead => MemRead,
+		MemToReg => MemToReg,
+		MemWrite => MemWrite,
+		AluSrc => AluSrc,
+		RegWrite => RegWrite,
+		NotZero => NotZero,
+		LUI => LUI,
+		ALUOp => ALUOp
+	);
+
+	-- Registers --
+	registerFile : registers PORT MAP (
+		loin => Lo,
+		hiin => Hi,
+		loout => RegLo,
+		hiout => RegHi,
+		writelohi => writelohi,
+		readdata1 => readdata1,
+		readdata2 => readdata2,
+		readReg1 => IFIDInstruction(25 downto 21);
+		readReg2 => IFIDInstruction(20 downto 16);
+		regwrite => MEMWBRegWrite,
+		writeReg => MEMWBRegRd,
+		writedata => MemtoRegMux,
+		clock => clockSignal,
+		init => InitReg
+	)
+
+	-- MUX for Data A
+	WITH BranchAforward SELECT
+		BranchAData <= MemtoRegMux WHEN "01",
+					   EXMEMResult WHEN "10",
+					   readdata1   WHEN OTHERS;
+
+	-- MUX for Data B
+	WITH BranchBforward SELECT
+		BranchBData <= MemtoRegMux WHEN "01",
+					   EXMEMResult WHEN "10",
+					   readdata2   WHEN OTHERS;
+
+	WITH(BranchAData = BranchBData) SELECT
+		IDZero <= '1' when TRUE, 
+				  '0' when others;
+
+	-- ALU Jump 
+	ALU2ShiftDatabb <= signExtend(29 downto 0) & "00";
+	AluJmp : ALU
+	PORT MAP (
+		InA => IFIDAddress,
+		InB => ALU2ShiftDatabb,
+		Control => "0010", --add
+		Shamt => IFIDInstruction(10 downto 6),
+		Result => BranchAddress
+	);
 
 
 
-
+		
 
 
 

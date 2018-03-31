@@ -47,12 +47,13 @@ begin
 				end loop;
 			elsif(regwrite = '1') then
 				regs(to_integer(unsigned(writeReg))) <= writedata;
-				regs(0) <= x"00000000";
 			end if;
 			if(writelohi = '1') then
 				regs(32) <= loin;
 				regs(33) <= hiin;
 			end if;
+
+			regs(0) <= "00000000000000000000000000000000";
 		end if;
 	end process;
 	

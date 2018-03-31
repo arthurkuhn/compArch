@@ -3,7 +3,7 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
-	Port (
+	PORT (
 		CLK	: in  STD_LOGIC;
 		InA     : in  STD_LOGIC_VECTOR(31 downto 0);
         InB     : in  STD_LOGIC_VECTOR(31 downto 0);
