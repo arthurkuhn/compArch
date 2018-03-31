@@ -1,2 +1,2 @@
 # compArch
-Computer Architecture Assignments
+Computer Architecture Assignments. See P4 for latest deliverables.
