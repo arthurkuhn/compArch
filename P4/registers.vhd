@@ -4,10 +4,11 @@ USE ieee.numeric_std.all;
 
 entity registers is
 	generic(
-		clockperiod : time := 1 ns
+		clockperiod : time := 1 ns;
+		fileAddressWr		:	STRING  := "memory.txt"
 	);
 	port (
-
+        dump        : in std_logic := '0';
 		loin		: in std_logic_vector(31 downto 0);
 		hiin		: in std_logic_vector(31 downto 0);
 		loout		: out std_logic_vector(31 downto 0);
@@ -39,7 +40,40 @@ architecture behaviour of registers is
 begin
 	regRrocess: process (clock)
 	begin
-		if (clock'event AND clock = '1') then
+	    if(dump'event AND dump='1') then
+	        -- Flush registers to text file:
+	        --open file write.txt from specified location for WRITE MODE
+	        file filePointer : text;
+            variable lineContent : string(1 to 32);
+            variable i : INTEGER := 0;
+            variable lineNum : line;
+            file_open(filePointer, fileAddressWr, WRITE_MODE);
+
+            -- store binary values from 0000 to 1111 in the file
+            for i in 0 to memSize-1 loop
+                binVal := memory(i);
+
+                --convert each bit val to character for writing to file
+                for j in 0 to numBitsInByte-1 loop
+                    if(binVal(j) = '0') then
+                        lineContent(numBitsInByte-j) := '0';
+                    elsif(binVal(j) = '1') then
+                        lineContent(numBitsInByte-j) := '1';
+                    elsif(binVal(j) = 'U') then
+                        lineContent(numBitsInByte-j) := 'U';
+                    elsif(binVal(j) = 'X') then
+                        lineContent(numBitsInByte-j) := 'X';
+                    elsif(binVal(j) = 'Z') then
+                        lineContent(numBitsInByte-j) := 'Z';
+                    end if;
+                end loop;
+
+                write(lineNum, lineContent); --writes the line
+                writeline(filePointer, lineNum); --writes contents into file
+
+            end loop;
+            file_close(filePointer); -- after writing is done, close file
+		elsif (clock'event AND clock = '1') then
 		
 			if (init = '1') then
 				for i in 0 to regWidth-1 loop 
