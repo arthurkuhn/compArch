@@ -22,7 +22,7 @@ component PC is
 	);
 END component; 
 
-component MainMemory is
+component memory is
 	GENERIC (
 		 fileAddressRd		:	STRING  := "program.txt";
 		 fileAddressWr		:	STRING  := "memory.txt";
@@ -460,7 +460,7 @@ BEGIN
 	end process;
 
 	--map PC
-	PCInst : programCounter PORT MAP
+	PCInst : PC PORT MAP
 	(
 		clock => clockSig,
 		pcWrite => pcWrite,
@@ -910,7 +910,7 @@ BEGIN
 
 			end case;
 		end if;
-		
+
    end process;
 
 end main_behavior;

@@ -6,6 +6,7 @@ use ieee.std_logic_textio.all;
 
 ENTITY memory IS
 	GENERIC(
+    	fileAddressRd		:	STRING  := "program.txt";
     	fileAddressWr		:	STRING  := "dump.txt";
 		ram_size            :   INTEGER := 8192;
 		mem_delay           :   time := 1 ns;
