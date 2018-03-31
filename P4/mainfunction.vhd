@@ -704,7 +704,7 @@ BEGIN
 		readlohimux <= Result when "00",
 					   RegHi when "10",
 					   RegLo when "11",
-					   (others => "X") when others;
+					   "XX" when others;
 
 	EXMEMInst: EXMEM PORT MAP (
 		clock => clockSig,
