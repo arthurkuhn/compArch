@@ -28,3 +28,8 @@ Kartik Puranik Karkala
 2. http://db.cs.duke.edu/courses/fall11/cps104/lects/mips.pdf
 3. https://github.com/armenism/ECSE425/blob/master/
 4. https://github.com/chiwingsit/ECSE425/tree/master/
+
+
+## NB
+
+As of the submission deadline, some of our main function mapping still does not compile. We have tried to make each component as independant as possible to follow best practices. Integrating all the work proved much tougher and time consumming than expected.
