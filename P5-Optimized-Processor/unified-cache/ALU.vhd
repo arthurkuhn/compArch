@@ -11,7 +11,8 @@ end alu;
  
 architecture Behavioral of alu is
 
-signal shift, hi, lo, mul_result, div_result, div_rem  : std_logic_vector (31 downto 0);
+signal hilo_buffer : std_logic_vector(63 downto 0);
+signal test : integer;
 
 begin
 process(input_a, input_b, SEL) 	
