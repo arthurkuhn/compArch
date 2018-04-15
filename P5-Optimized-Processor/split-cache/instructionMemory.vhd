@@ -7,7 +7,6 @@ use ieee.std_logic_textio.all;
 
 ENTITY instructionMemory IS
 	GENERIC(
-	-- might need to change it 
 		ram_size : INTEGER := 1024;
 		mem_delay : time := 1 ns;
 		clock_period : time := 1 ns
