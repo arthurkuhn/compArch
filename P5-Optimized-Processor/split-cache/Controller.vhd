@@ -301,7 +301,6 @@ begin
 		structuralStall <= '0';
 		
 		--ORI OUTPUT 12
-		
 		when "001101" => 
 		ALU1src <= '0';
 		ALU2src <= '0';
@@ -316,7 +315,6 @@ begin
 		structuralStall <= '0';
 		
 		--XORI OUTPUT 13
-		
 		when "001110" => 
 		ALU1src <= '0';
 		ALU2src <= '0';
@@ -331,7 +329,6 @@ begin
 		structuralStall <= '0';
 		
 		--LUI OUTPUT 16
-		
 		when "001111" => 
 		ALU1src <= '0';
 		ALU2src <= '0';
@@ -345,7 +342,6 @@ begin
 		JType <= '0';
 		structuralStall <= '0';
 
-		
 		-- LW OUTPUT 20
 		when "100011" => 
 		ALU1src <= '0';
@@ -361,7 +357,6 @@ begin
 		structuralStall <= '1';
 		
 		-- Store  OUTPUT 21
-		
 		when "101011" => 
 		ALU1src <= '0';
 		ALU2src <= '0';
@@ -390,7 +385,6 @@ begin
 		structuralStall <= '0';
 		
 		--BNE	OUTPUT 23
-		
 		when "000101" => 
 		ALU1src <= '1';
 		ALU2src <= '0';
@@ -404,8 +398,7 @@ begin
 		JType <= '0';
 		structuralStall <= '0';
 		
-		-- JUMP OUTPUT 24 
-		
+		-- JUMP OUTPUT 24
 		when "000010" => 
 		ALU1src <= '1';
 		ALU2src <= '0';
