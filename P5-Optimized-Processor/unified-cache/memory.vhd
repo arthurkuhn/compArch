@@ -8,7 +8,7 @@ use ieee.std_logic_textio.all;
 ENTITY memory IS
 	GENERIC(
 		ram_size : INTEGER := 8192;
-		mem_delay : time := 0.5 ns;
+		mem_delay : time := 20 ns;
 		clock_period : time := 1 ns
 	);
 	PORT (
@@ -18,7 +18,7 @@ ENTITY memory IS
 		memwrite: IN STD_LOGIC;
 		memread: IN STD_LOGIC;
 		writeToText : IN STD_LOGIC;
-		
+
 		readdata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 		waitrequest: OUT STD_LOGIC
 	);
@@ -34,20 +34,20 @@ BEGIN
 
 	process(writeToText)
 			file memoryFile : text open write_mode is "memory.txt";
-			variable outLine : line;	
+			variable outLine : line;
 			variable rowLine : integer := 0;
 
 			begin
 			if writeToText = '1' then
-			
-			while (rowLine < 8192) loop 
-			
+
+			while (rowLine < 8192) loop
+
 				write(outLine, ram_block(rowLine));
 				writeline(memoryFile, outLine);
 				rowLine := rowLine + 1;
-				
+
 			end loop;
-		end if;	
+		end if;
 		end process;
 	--This is the main section of the SRAM model
 	mem_process: PROCESS (clock)
@@ -67,13 +67,13 @@ BEGIN
 
 		END IF;
 	END PROCESS;
-	
+
 
 	process (memread)
 	begin
 		IF (memread = '1')THEN
 			readdata <= ram_block(address);
-		END IF;	
+		END IF;
 	end process;
 
 	--The waitrequest signal is used to vary response time in simulation
