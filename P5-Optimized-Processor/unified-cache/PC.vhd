@@ -13,6 +13,7 @@ end pc;
 architecture pc_arch of pc is
 
 signal test :std_logic ;
+
 begin
 
 
