@@ -29,18 +29,12 @@ case SEL is
   out_alu<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) +   to_integer (unsigned(input_b)), out_alu'length)) ; --ADDI
  
  when "00011" => 
- hi<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), 64))(63 downto 32);
- lo<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), 64))(31 downto 0);
- mul_result <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), 32));
- out_alu<= mul_result;
+hilo_buffer <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), hilo_buffer'length)); --MULT
  
  when "00100" =>  
- div_result <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) /   to_integer (unsigned(input_b)), div_result'length));   --DIV
- div_rem <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) mod to_integer (unsigned(input_b)), div_rem'length));
- lo <= div_result;
- hi <= div_rem;
- out_alu <= div_result;
-
+ hilo_buffer (31 downto 0) <= std_logic_vector((signed(input_a)/signed(input_b)));   --DIV
+ hilo_buffer (63 downto 32) <= std_logic_vector((signed(input_a) mod signed(input_b)));
+					    
  when "00101" =>  
  if (unsigned(input_a) < unsigned(input_b)) then  --SLT
 	out_alu <= x"00000001";
@@ -77,10 +71,10 @@ case SEL is
  out_alu<= input_a xor input_b; --xORI
  
  when "01110" => --MOVE FROM HIGH
- out_alu<= hi;
+ out_alu<= hilo_buffer (63 downto 32);
 
  when "01111" => -- MOVE FROM LOW
- out_alu<= lo;
+ out_alu<= hilo_buffer (31 downto 0);
  
  when "10000" => -- LUI
 	out_alu <= input_b (15 downto 0)  & std_logic_vector(to_unsigned(0, 16));
