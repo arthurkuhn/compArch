@@ -11,75 +11,71 @@ end alu;
  
 architecture Behavioral of alu is
 
-signal shift, hi, lo, mul_result, div_result, div_rem  : std_logic_vector (31 downto 0);
+
+signal hilo_buffer : std_logic_vector(63 downto 0);
+signal test : integer;
 
 begin
-process(input_a, input_b, SEL) 	
+process(input_a, input_b, SEL)
 begin
 case SEL is
- 
+
  when "00000" =>
  out_alu<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) +   to_integer (unsigned(input_b)), out_alu'length)) ; --ADD
- 
- when "00001" => 
- out_alu<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) -   to_integer (unsigned(input_b)), out_alu'length)); --SUB 
- 
- when "00010" => 
-  out_alu<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) +   to_integer (unsigned(input_b)), out_alu'length)) ; --ADDI
- 
- when "00011" => 
- hi<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), 64))(63 downto 32);
- lo<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), 64))(31 downto 0);
- mul_result <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), 32));
- out_alu<= mul_result;
- 
- when "00100" =>  
- div_result <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) /   to_integer (unsigned(input_b)), div_result'length));   --DIV
- div_rem <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) mod to_integer (unsigned(input_b)), div_rem'length));
- lo <= div_result;
- hi <= div_rem;
- out_alu <= div_result;
 
- when "00101" =>  
+ when "00001" =>
+ out_alu<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) -   to_integer (unsigned(input_b)), out_alu'length)); --SUB
+
+ when "00010" =>
+  out_alu<= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) +   to_integer (unsigned(input_b)), out_alu'length)) ; --ADDI
+
+ when "00011" =>
+ hilo_buffer <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   to_integer (unsigned(input_b)), hilo_buffer'length)); --MULT
+
+ when "00100" =>
+ hilo_buffer (31 downto 0) <= std_logic_vector((signed(input_a)/signed(input_b)));   --DIV
+ hilo_buffer (63 downto 32) <= std_logic_vector((signed(input_a) mod signed(input_b)));
+
+ when "00101" =>
  if (unsigned(input_a) < unsigned(input_b)) then  --SLT
 	out_alu <= x"00000001";
 	else
 	out_alu <= x"00000000";
  end if;
- 
- when "00110" => 
+
+ when "00110" =>
   if (unsigned(input_a) < unsigned(input_b)) then  --SLTI
 	out_alu <= x"00000001";
 	else
 	out_alu <= x"00000000";
  end if;
- 
- when "00111" => 
+
+ when "00111" =>
  out_alu<= input_a and input_b; --AND
 
  when "01000" =>
  out_alu<= input_a or input_b; --OR
 
- when "01001" => 
+ when "01001" =>
  out_alu<= input_a nor input_b; --NOR
- 
+
  when "01010" =>
- out_alu<= input_a xor input_b; --XOR 
+ out_alu<= input_a xor input_b; --XOR
 
  when "01011" =>
  out_alu<= input_a and input_b; --ANDI
- 
+
  when "01100" =>
  out_alu<= input_a or input_b; --ORI
 
- when "01101" => 
+ when "01101" =>
  out_alu<= input_a xor input_b; --xORI
- 
+
  when "01110" => --MOVE FROM HIGH
- out_alu<= hi;
+ out_alu<= hilo_buffer (63 downto 32);
 
  when "01111" => -- MOVE FROM LOW
- out_alu<= lo;
+ out_alu<= hilo_buffer (31 downto 0);
  
  when "10000" => -- LUI
 	out_alu <= input_b (15 downto 0)  & std_logic_vector(to_unsigned(0, 16));

@@ -60,8 +60,4 @@ test_process : process
 end process;
 
 
-
-
-
-
 end cpuPipeline_tb_arch;
