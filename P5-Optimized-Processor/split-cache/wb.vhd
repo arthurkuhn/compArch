@@ -18,19 +18,19 @@ end wb;
 architecture behavioral of wb is
 
 begin
-process(alu_in, mem_in, ctrl_memtoreg_in, ctrl_regwrite_in)
+process(alu_in, mem_in, ctrl_memtoreg_in, ctrl_regwrite_in,write_addr_in)
 begin
 	write_addr_out <= write_addr_in;
 	ctrl_regwrite_out <= ctrl_regwrite_in;
 
 	case ctrl_memtoreg_in is
 		--ALU
-		when '0' => 
+		when '0' =>
 			mux_out <= alu_in;
 		--MEM
-		when '1' => 
+		when '1' =>
 			mux_out <= mem_in;
-		when others => 
+		when others =>
 			mux_out <= "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 	end case;
 end process;
