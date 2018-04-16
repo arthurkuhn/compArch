@@ -2,32 +2,28 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity pc is
-port(clk : in std_logic;
+ENTITY pc is
+PORT(clk : in std_logic;
 	 reset : in std_logic;
-	 counterOutput : out std_logic_vector(31 downto 0);
-	 counterInput : in std_logic_vector(31 downto 0) := x"00000000"
+	 counter_out : out std_logic_vector(31 downto 0);
+	 counter_in : in std_logic_vector(31 downto 0) := x"00000000"
 	 );
 end pc;
 
-architecture pc_arch of pc is
+architecture arch of pc is
 
- 
 begin
 
 process (clk,reset)
 begin
-	
+
 	if (reset = '1') then
-		counterOutput <= x"00000000";
-	elsif (clk'event and clk = '1') then 	
-		counterOutput <= counterInput;
+		counter_out <= x"00000000";
+	elsif (clk'event and clk = '1') then
+		counter_out <= counter_in;
 
 	end if;
-	
-	
+
 	end process;
 
-
-	
-end pc_arch;
+end arch;

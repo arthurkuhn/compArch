@@ -10,21 +10,20 @@ ENTITY register_file IS
 	);
 
 	PORT(
-		-- ************** Do we need a standard enable input ? *****************
 		clock: IN STD_LOGIC;
 		rs: IN STD_LOGIC_VECTOR (4 downto 0); -- first source register
 		rt: IN STD_LOGIC_VECTOR (4 downto 0); -- second source register
-		write_enable: IN STD_LOGIC; -- signals that rd_data may be written into rd 					**********Unsure if neccessary*************
+		write_enable: IN STD_LOGIC; -- signals that rd_data may be written into rd
 		rd: IN STD_LOGIC_VECTOR (4 downto 0); -- destination register
 		rd_data: IN STD_LOGIC_VECTOR (31 downto 0); -- destination register data
-		writeToText: IN STD_LOGIC := '0';
+		write_to_text: IN STD_LOGIC := '0';
 		
 		ra_data: OUT STD_LOGIC_VECTOR (31 downto 0); -- data of register a
 		rb_data: OUT STD_LOGIC_VECTOR (31 downto 0) -- data of register b
 	);
 END register_file;
 
-ARCHITECTURE Behav OF register_file IS
+ARCHITECTURE arch OF register_file IS
 
 TYPE registers IS ARRAY (0 to 31) OF STD_LOGIC_VECTOR(31 downto 0); -- MIPS has 32 registers. Size of data is 32 bits. => 32x32bits
 SIGNAL register_store: registers := (OTHERS=> "00000000000000000000000000000000"); -- initialize all registers to 32 bits of 0.
@@ -45,14 +44,14 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	process(writeToText)
+	process(write_to_text)
 	file register_file : text open write_mode is "register_file.txt";
-	variable outLine : line;	
+	variable outLine : line;
 	variable rowLine : integer := 0;
 	variable test : std_logic_vector(31 downto 0) := "00100000000000010000000000000001";
 	
 	begin
-	if writeToText = '1' then
+	if write_to_text = '1' then
 	
 	while (rowLine < 32) loop 
 	
@@ -67,5 +66,4 @@ BEGIN
 	
 	end process;
 	
-	
-END Behav;
+END arch;

@@ -8,31 +8,31 @@ ENTITY instructionFetchStage IS
 
 port(
 	clk : in std_logic;
-	globalClk : in std_logic;
-	muxInput0 : in std_logic_vector(31 downto 0);
-	selectInputs : in std_logic;
+	global_clk : in std_logic;
+	mux_in0 : in std_logic_vector(31 downto 0);
+	select_ins : in std_logic;
 	four : in INTEGER;
-	structuralStall : IN STD_LOGIC := '0';
-	pcStall : IN STD_LOGIC := '0';
+	structural_stall : IN STD_LOGIC := '0';
+	pc_stall : IN STD_LOGIC := '0';
 
-	selectOutput : out std_logic_vector(31 downto 0);
-	instructionMemoryOutput : out std_logic_vector(31 downto 0);
+	select_out : out std_logic_vector(31 downto 0);
+	instruction_mem_out : out std_logic_vector(31 downto 0);
 
-	waitrequest: out std_logic;
+	wait_req: out std_logic;
 
 	-- CACHE port
-	Caddr : out integer range 0 to 1024-1;
-	Cread : out std_logic;
-	Creaddata : in std_logic_vector (31 downto 0);
-	Cwrite : out std_logic;
-	Cwritedata : out std_logic_vector (31 downto 0);
-	Cwaitrequest : in std_logic
+	C_addr : out integer range 0 to 1024-1;
+	C_read : out std_logic;
+	C_readdata : in std_logic_vector (31 downto 0);
+	C_write : out std_logic;
+	C_writedata : out std_logic_vector (31 downto 0);
+	C_waitrequest : in std_logic
 
 );
 
 END instructionFetchStage;
 
-architecture instructionFetchStage_arch of instructionFetchStage is
+architecture IF_arch of instructionFetchStage is
 
 --CACHE
 
@@ -68,8 +68,8 @@ end component;
 component pc is
 port(clk : in std_logic;
 	 reset : in std_logic;
-	 counterOutput : out std_logic_vector(31 downto 0);
-	 counterInput : in std_logic_vector(31 downto 0)
+	 counter_out : out std_logic_vector(31 downto 0);
+	 counter_in : in std_logic_vector(31 downto 0)
 	 );
 end component;
 
@@ -79,8 +79,8 @@ component mux is
 port(
 	 input0 : in std_logic_vector(31 downto 0);
 	 input1 : in std_logic_vector(31 downto 0);
-	 selectInput : in std_logic;
-	 selectOutput : out std_logic_vector(31 downto 0)
+	 select_in : in std_logic;
+	 select_out : out std_logic_vector(31 downto 0)
 	 );
 
 end component;
@@ -89,9 +89,9 @@ end component;
 
 component adder is
 port(
-	 plusFour : in integer;
-	 counterOutput : in std_logic_vector(31 downto 0);
-	 adderOutput : out std_logic_vector(31 downto 0)
+	 plus_four : IN INTEGER;
+     counter_out : IN STD_LOGIC_VECTOR(31 downto 0);
+     adder_out : OUT STD_LOGIC_VECTOR(31 downto 0)
 	 );
 end component;
 
@@ -99,14 +99,14 @@ end component;
 	signal rst : std_logic := '0';
     signal writedata: std_logic_vector(31 downto 0);
     signal address: INTEGER;
-    
+
+    signal wait_req_sig: STD_LOGIC;
 	signal memwrite: STD_LOGIC := '0';
     signal memread: STD_LOGIC;
     signal readdata: STD_LOGIC_VECTOR (31 DOWNTO 0);
-    signal waitrequestSig: STD_LOGIC;
 	
 	signal pcOutput : STD_LOGIC_VECTOR(31 DOWNTO 0);
-	signal internal_selectOutput : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	signal internalSelectOut : STD_LOGIC_VECTOR(31 DOWNTO 0);
 	signal addOutput : STD_LOGIC_VECTOR(31 DOWNTO 0);
 		
 	--SIGNAL FOR STALLS 
@@ -116,7 +116,7 @@ end component;
 	
 begin
 
-selectOutput <= internal_selectOutput;
+select_out <= internalSelectOut;
 --address <= to_integer(unsigned(addOutput(9 downto 0)))/4;
 
 
@@ -124,45 +124,45 @@ pcCounter : pc
 port map(
 	clk => clk,
 	reset => rst,
-	counterOutput => pcOutput,
-	counterInput => pcInput
+	counter_out => pcOutput,
+	counter_in => pcInput
 );
 
 add : adder
 port map(
 	 
-	 plusFour => four,
-	 counterOutput => pcOutput,
-	 adderOutput => addOutput
+	 plus_four => four,
+	 counter_out => pcOutput,
+	 adder_out => addOutput
 );
 
 fetchMux : mux 
 port map(
 	 input0 => addOutput,
-	 input1 => muxInput0,
-	 selectInput => selectInputs,
-	 selectOutput => internal_selectOutput
+	 input1 => mux_in0,
+	 select_in => select_ins,
+	 select_out => internalSelectOut
 	 );
 	 
 structuralMux : mux 
 port map (
 input0 => memoryValue,
 input1 => stallValue,
-selectInput => structuralStall,
-selectOutput => instructionMemoryOutput
+select_in => structural_stall,
+select_out => instruction_mem_out
 );
 
 pcMux : mux 
 port map (
-input0 => internal_selectOutput,
+input0 => internalSelectOut,
 input1 => pcOutput,
-selectInput => pcStall,
-selectOutput => pcInput
+select_in => pc_stall,
+select_out => pcInput
 );
 	 
 memCache : cache
 port map(
-	clock => globalClk,
+	clock => global_clk,
 	reset => rst,
 
 	s_addr => pcOutput,
@@ -170,20 +170,20 @@ port map(
 	s_readdata => memoryValue,
 	s_write => memwrite,
 	s_writedata => writedata,
-	s_waitrequest => waitrequestSig,
+	s_waitrequest => wait_req_sig,
 
 	m_addr =>address,
-	m_read =>cread,
-	m_readdata => creaddata,
-	m_write => cwrite,
-	m_writedata => cwritedata,
-	m_waitrequest => cwaitrequest
+	m_read =>C_read,
+	m_readdata => C_readdata,
+	m_write => C_write,
+	m_writedata => C_writedata,
+	m_waitrequest => C_waitrequest
 );
 
-process (waitrequestSig,clk)
+process (wait_req_sig,clk)
 begin
 
-	if (waitrequestSig'event and waitrequestSig = '1') then
+	if (wait_req_sig'event and wait_req_sig = '1') then
 		memread <= '0';
 	end if;
 
@@ -196,15 +196,12 @@ end process;
 process (address)
 begin
 	if address >= 1024 then
-		caddr <= 0;
+		C_addr <= 0;
 	else
-		caddr <= address;
+		C_addr <= address;
 	end if;
 end process;
 
-waitrequest <= waitrequestSig;
+wait_req <= wait_req_sig;
 
-end instructionFetchStage_arch;
-	
-				
-end instructionFetchStage_arch;
+end IF_arch;

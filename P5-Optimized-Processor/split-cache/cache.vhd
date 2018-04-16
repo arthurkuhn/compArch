@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-ENTITY splitCache is
+ENTITY cache is
 GENERIC(
     ramSize : INTEGER := 8192
 );
@@ -12,7 +12,7 @@ PORT(
     reset: IN STD_LOGIC;
 
    -- Avalon interface --
-   s_addr : in std_logic_vector (31 downto 0);
+    s_addr : in std_logic_vector (31 downto 0);
    	s_read : in std_logic;
    	s_readdata : out std_logic_vector (31 downto 0);
    	s_write : in std_logic;
@@ -27,7 +27,7 @@ PORT(
    	m_waitrequest : in std_logic
    );
 
-end splitCache;
+end cache;
 
 ARCHITECTURE behavior of cache is
 

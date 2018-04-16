@@ -35,7 +35,7 @@ hilo_buffer <= std_logic_vector(to_unsigned(to_integer (unsigned(input_a)) *   t
  hilo_buffer (31 downto 0) <= std_logic_vector((signed(input_a)/signed(input_b)));   --DIV
  hilo_buffer (63 downto 32) <= std_logic_vector((signed(input_a) mod signed(input_b)));
 					    
- when "00101" =>  
+ when "00101" =>
  if (unsigned(input_a) < unsigned(input_b)) then  --SLT
 	out_alu <= x"00000001";
 	else

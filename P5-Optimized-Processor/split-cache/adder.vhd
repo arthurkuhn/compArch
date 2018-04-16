@@ -2,21 +2,21 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity adder is
+ENTITY adder is
 port(
-	 plusFour : in integer;
-	 counterOutput : in std_logic_vector(31 downto 0);
-	 adderOutput : out std_logic_vector(31 downto 0)
+	 plus_four : IN INTEGER;
+	 counter_out : IN STD_LOGIC_VECTOR(31 downto 0);
+	 adder_out : OUT STD_LOGIC_VECTOR(31 downto 0)
 	 );
 end adder;
 
-architecture adder_arch of adder is
+architecture arch of adder is
 
-signal add : integer;
+signal add : INTEGER;
 
 begin
 
-	add <= plusFour + to_integer(unsigned(counterOutput)); 
-	adderOutput <= std_logic_vector(to_unsigned(add, adderOutput'length));
+	add <= plus_four + to_integer(unsigned(counter_out));
+	adder_out <= std_logic_vector(to_unsigned(add, adder_out'length));
 	
-end adder_arch;
+end arch;

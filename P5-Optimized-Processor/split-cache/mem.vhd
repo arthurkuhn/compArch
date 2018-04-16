@@ -2,13 +2,14 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity mem is
+ENTITY mem is
 GENERIC(
 	ram_size : INTEGER := 8192; 
 	mem_delay : time := 20 ns;
 	clock_period : time := 1 ns
 );
-port (clk: in std_logic;
+
+PORT (clk: in std_logic;
 	-- Control lines
 	ctrl_write : in std_logic;
 	ctrl_read: in std_logic;
@@ -32,14 +33,12 @@ port (clk: in std_logic;
 	memwrite: OUT STD_LOGIC := '0';
 	memread: OUT STD_LOGIC := '0';
 	readdata: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-	cpuStall : IN STD_LOGIC;
-	cpuStall_out: OUT STD_LOGIC;
+	cpu_stall : IN STD_LOGIC;
 	waitrequest: IN STD_LOGIC
-
-  );
+);
 end mem;
 
-architecture behavioral of mem is
+ARCHITECTURE arch of mem is
 
 
 signal mem_data_next, alu_next, address_next: std_logic_vector (31 downto 0);
@@ -50,7 +49,7 @@ begin
 
 process (clk)
 begin
-	if (clk'event and clk = '1' and cpuStall = '0') then
+	if (clk'event and clk = '1' and cpu_stall = '0') then
 		write_addr_out <= write_addr_next;
 		mem_data_out <= mem_data_next;
 		alu_out <= alu_next;
@@ -96,4 +95,5 @@ begin
 end process;
 
 mem_data_next <= readdata;
-end behavioral;
+
+end arch;

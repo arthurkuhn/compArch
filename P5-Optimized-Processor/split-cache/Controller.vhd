@@ -2,7 +2,7 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity controller is
+ENTITY controller is
 port(clk : in std_logic;
 	 opcode : in std_logic_vector(5 downto 0);
 	 funct : in std_logic_vector(5 downto 0);
@@ -22,7 +22,7 @@ port(clk : in std_logic;
 	 );
 end controller;
 
-architecture controller_arch of controller is
+ARCHITECTURE arch of controller is
 
 begin
 
@@ -432,4 +432,4 @@ begin
 	end if;
 end process;
 	
-end controller_arch;
+end arch;

@@ -2,8 +2,8 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity wb is
-port (ctrl_memtoreg_in: in std_logic;
+ENTITY wb is
+PORT (ctrl_memtoreg_in: in std_logic;
 	ctrl_regwrite_in: in std_logic;
 	ctrl_regwrite_out: out std_logic;
 	
@@ -13,9 +13,9 @@ port (ctrl_memtoreg_in: in std_logic;
 	write_addr_in: in std_logic_vector (4 downto 0);
 	write_addr_out: out std_logic_vector (4 downto 0)
   );
-end wb;
+END wb;
 
-architecture behavioral of wb is
+architecture arch of wb is
 
 begin
 process(alu_in, mem_in, ctrl_memtoreg_in, ctrl_regwrite_in,write_addr_in)
@@ -35,4 +35,4 @@ begin
 	end case;
 end process;
 
-end behavioral;
+end arch;
