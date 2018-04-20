@@ -13,7 +13,6 @@ port
 clk : in std_logic;
 reset : in std_logic;
 four : INTEGER;
-
 writeToRegisterFile : in std_logic;
 writeToMemoryFile : in std_logic
 
@@ -26,6 +25,7 @@ signal rst : std_logic := '0';
 signal fourInt : INTEGER := 4;
 signal writeToRegisterFile : std_logic := '0';
 signal writeToMemoryFile : std_logic := '0';
+
 begin 
 
 pipeline : cpuPipeline
@@ -48,10 +48,9 @@ clk_process : process
 
 test_process : process
     BEGIN
-	
-	report "STARTING SIMULATION \n";
-		
-		wait for  390000* clk_period;
+        wait for clk_period;
+        report "STARTING SIMULATION \n";
+		wait for  10000* clk_period;
 		writeToRegisterFile <= '1';
 		writeToMemoryFile <= '1';
 		

@@ -20,7 +20,6 @@ architecture cpuPipeline_arch of cpuPipeline is
 component instructionFetchStage IS
 	port(
 		clk : in std_logic;
-		globalClk : in std_logic;
 		muxInput0 : in std_logic_vector(31 downto 0);
 		selectInputs : in std_logic;
 		four : in INTEGER;
@@ -28,17 +27,8 @@ component instructionFetchStage IS
 		pcStall : IN STD_LOGIC;
 
 		selectOutput : out std_logic_vector(31 downto 0);
-		instructionMemoryOutput : out std_logic_vector(31 downto 0);
-		
-		-- UNIFIED CACHE port 
-		pcOutput : out std_logic_vector(31 downto 0);
-		readOutput : out std_logic;
-		memoryValue : in std_logic_vector(31 downto 0);
-		writeOutput : out std_logic;
-		writeDataOutput : out std_logic_vector(31 downto 0);
-		waitRequestInput : in std_logic
-
-	);
+		instructionMemoryOutput : out std_logic_vector(31 downto 0)
+		);
 		
 	end component;
 		
@@ -115,10 +105,10 @@ port (input_a : in std_logic_vector (31 downto 0);
 end component;
 
 --MEMORY OBJ FOR MEM STAGE
-COMPONENT newMemory IS
+COMPONENT memory IS
 	GENERIC(
 		ram_size : INTEGER := 8192;
-		mem_delay : time := 20 ns;
+		mem_delay : time := 10 ns;
 		clock_period : time := 1 ns
 	);
 	PORT (
@@ -130,9 +120,7 @@ COMPONENT newMemory IS
 		writeToText : IN STD_LOGIC := '0';
 		
 		readdata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-		waitrequest: OUT STD_LOGIC;
-		
-		control : in std_logic
+		waitrequest: OUT STD_LOGIC
 	);
 END COMPONENT;
 
@@ -158,11 +146,10 @@ port (clk: in std_logic;
 	
 	--Memory signals
 	writedata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-	address: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+	address: OUT INTEGER RANGE 0 TO 32768 -1;
 	memwrite: OUT STD_LOGIC := '0';
 	memread: OUT STD_LOGIC := '0';
 	readdata: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-	cpuStall : IN STD_LOGIC ;
 	waitrequest: IN STD_LOGIC
 	
   );
@@ -180,80 +167,17 @@ port (ctrl_memtoreg_in: in std_logic;
 	write_addr_out: out std_logic_vector (4 downto 0)
 );
  end component;
- 
- component cache is
-	generic(
-		ram_size : INTEGER := 8192
-	);
-	port(
-		clock : in std_logic;
-		reset : in std_logic;
 
-		-- Avalon interface --
-		s_addr : in std_logic_vector (31 downto 0);
-		s_read : in std_logic;
-		s_readdata : out std_logic_vector (31 downto 0);
-		s_write : in std_logic;
-		s_writedata : in std_logic_vector (31 downto 0);
-		s_waitrequest : out std_logic; 
-
-		m_addr : out integer range 0 to ram_size-1;
-		m_read : out std_logic;
-		m_readdata : in std_logic_vector (31 downto 0);
-		m_write : out std_logic;
-		m_writedata : out std_logic_vector (31 downto 0);
-		m_waitrequest : in std_logic
-	);
-end component;
-
-component arbiter is
-	generic(
-		ram_size : INTEGER := 8192
-	);
-	port(
-		-- Avalon interface --
-		s_addr_data : in std_logic_vector (31 downto 0);
-		s_read_data : in std_logic;
-		s_readdata_data : out std_logic_vector (31 downto 0);
-		s_write_data : in std_logic;
-		s_writedata_data : in std_logic_vector (31 downto 0);
-		s_waitrequest_data : out std_logic;
-		
-		s_addr_instruct : in std_logic_vector (31 downto 0);
-		s_read_instruct : in std_logic;
-		s_readdata_instruct : out std_logic_vector (31 downto 0);
-		s_write_instruct : in std_logic;
-		s_writedata_instruct : in std_logic_vector (31 downto 0);
-		s_waitrequest_instruct : out std_logic;
-		
-		m_addr : out std_logic_vector (31 downto 0);
-		m_read : out std_logic;
-		m_readdata : in std_logic_vector (31 downto 0);
-		m_write : out std_logic;
-		m_writedata : out std_logic_vector (31 downto 0);
-		m_waitrequest : in std_logic;
-		
-		controlOut : out std_logic
-	);
-end component;
-
-
- -- CLOCK SIGNAL 
-signal clock : std_logic := clk;
  
  -- STALL SIGNALS 
 signal IDEXStructuralStall : std_logic;
 signal EXMEMStructuralStall : std_logic;
 signal structuralStall : std_logic;
 signal pcStall : std_logic;
-signal cpuStall : std_logic := '0';
-signal stopStall : std_logic_vector (1 downto 0) := "00";
-
 -- TEST SIGNALS 
 signal muxInput : STD_LOGIC_VECTOR(31 downto 0) := "00000000000000000000000000000000";
 signal selectInput : std_logic := '1';
 signal fourInt : INTEGER := 4;
-signal controlSig: std_logic;
 
 -- PIPELINE IFID
 --address goes to both IFID and IDEX
@@ -310,63 +234,29 @@ signal memtoReg : std_logic;
 signal regWrite : std_logic;
 
 signal	MEMwritedata : std_logic_vector(31 downto 0);
-signal	MEMaddress : std_logic_vector(31 downto 0);
+signal	MEMaddress : INTEGER;
 signal	MEMmemwrite : STD_LOGIC;
 signal	MEMmemread  : STD_LOGIC;
 signal	MEMreaddata : std_logic_vector(31 downto 0);
 signal	MEMwaitrequest : STD_LOGIC;
 
---SIGNALS FOR CACHE
-signal m_addr_instruct : std_logic_vector (31 downto 0);
-signal m_read_instruct : std_logic;
-signal m_readdata_instruct : std_logic_vector (31 downto 0);
-signal m_write_instruct : std_logic;
-signal m_writedata_instruct : std_logic_vector (31 downto 0);
-signal m_waitrequest_instruct : std_logic;
-
-signal s_addr : std_logic_vector (31 downto 0);
-signal s_read : std_logic;
-signal s_readdata : std_logic_vector (31 downto 0);
-signal s_write : std_logic;
-signal s_writedata : std_logic_vector (31 downto 0);
-signal s_waitrequest : std_logic; 
-
-signal m_addr : integer range 0 to 8192-1;
-signal m_read : std_logic;
-signal m_readdata : std_logic_vector (31 downto 0);
-signal m_write : std_logic;
-signal m_writedata : std_logic_vector (31 downto 0);
-signal m_waitrequest : std_logic; 
-
-signal m_writeToText : std_logic := '0';
-
-
 begin
 
 IFS : instructionFetchStage
 port map(
-	clk => clock,
-	globalClk => clk,
+	clk => clk,
 	muxInput0 => EXMEMaluOutput,
 	selectInputs => EXMEMBranch,
 	four => fourInt,
 	structuralStall => structuralStall,
 	pcStall => pcStall,
 	selectOutput => address,
-	instructionMemoryOutput => instruction,
-	
-	pcOutput => m_addr_instruct,
-	readOutput => m_read_instruct,
-	memoryValue => m_readdata_instruct,
-	writeOutput => m_write_instruct,
-	writeDataOutput => m_writedata_instruct,
-	waitRequestInput => m_waitrequest_instruct
-	
+	instructionMemoryOutput => instruction
 );
 -- DECODE STAGE 
 CT : controller 
 port map(
-	clk => clock,
+	clk => clk,
 	opcode => opcodeInput, 
 	funct => functInput,
 	branch => zeroOutput,
@@ -387,7 +277,7 @@ port map(
 
 RegisterFile : register_file
 port map (
-	clock => clock,
+	clock => clk,
 	rs => rs,
 	rt => rt,
 	write_enable => write_enable,
@@ -439,7 +329,7 @@ result => zeroOutput
 
 memStage : mem
 port map (
-	clk =>clock,
+	clk =>clk,
 	-- Control lines
 	ctrl_write => EXMEMMemWriteO,
 	ctrl_read => EXMEMMemReadO,
@@ -463,69 +353,20 @@ port map (
 	memwrite => MEMmemwrite,
 	memread  => MEMmemread,
 	readdata => MEMreaddata,
-	cpuStall => cpuStall,
 	waitrequest => MEMwaitrequest
 );
 
-unified: cache
-port map(
-    clock => clk,
-    reset => reset,
-
-    s_addr => s_addr,
-    s_read => s_read,
-    s_readdata => s_readdata,
-    s_write => s_write,
-    s_writedata => s_writedata,
-    s_waitrequest => s_waitrequest,
-
-    m_addr => m_addr,
-    m_read => m_read,
-    m_readdata => m_readdata,
-    m_write => m_write,
-    m_writedata => m_writedata,
-    m_waitrequest => m_waitrequest
-);
-
-newMem : newMemory
+memMemory: memory
 port map (
-    clock => clk,
-    writedata => m_writedata,
-    address => m_addr,
-    memwrite => m_write,
-    memread => m_read,
-    writeToText => writeToMemoryFile,
-	readdata => m_readdata,
-    waitrequest => m_waitrequest,
-	control => controlSig
+	clock => clk,
+	writedata => MEMwritedata,
+	address => MEMaddress,
+	memwrite => MEMmemwrite,
+	memread  => MEMmemread,
+	writeToText => writeToMemoryFile,
+	readdata => MEMreaddata,
+	waitrequest => MEMwaitrequest
 );
-
-arb: arbiter
-port map (
-	s_addr_data => MEMaddress, 
-	s_read_data => MEMmemread,
-	s_readdata_data => MEMreaddata,
-	s_write_data => MEMmemwrite, 
-	s_writedata_data => MEMwritedata,
-	s_waitrequest_data => MEMwaitrequest,
-	
-	s_addr_instruct => m_addr_instruct, 
-	s_read_instruct => m_read_instruct,
-	s_readdata_instruct => m_readdata_instruct,
-	s_write_instruct => m_write_instruct, 
-	s_writedata_instruct => m_writedata_instruct,
-	s_waitrequest_instruct => m_waitrequest_instruct,
-
-	m_addr => s_addr,
-	m_read => s_read,
-	m_readdata => s_readdata,
-	m_write => s_write,
-	m_writedata => s_writedata,
-	m_waitrequest => s_waitrequest,
-	
-	controlOut => controlSig
-);
-
 
 wbStage: wb
 port map (ctrl_memtoreg_in => memtoReg,
@@ -539,53 +380,6 @@ port map (ctrl_memtoreg_in => memtoReg,
 	write_addr_out => WBrd
 );
 
-
-process(clk)
-begin
-if (cpuStall = '0') then
-clock <= clk;
-else
-clock <= '0';
-end if;
-end process;
-
-process (m_waitrequest_instruct, MEMwaitrequest, EXMEMMemWriteO ,EXMEMMemReadO,clock)
-begin
-	if cpuStall = '1' then
-		if (m_waitrequest_instruct'event and m_waitrequest_instruct = '1') then
-			if (stopStall = "10") then
-				cpuStall <= '0';
-				stopStall <= "00";
-			else
-				stopStall <= "01";
-			end if;
-		end if;
-		if (EXMEMMemWriteO = '1' or EXMEMMemReadO = '1')then
-			if (EXMEMMemWriteO'event or EXMEMMemReadO'event) then
-				stopStall (1) <= '0';
-			end if;
-			if MEMwaitrequest'event and MEMwaitrequest = '1' then
-				if (stopStall = "01") then
-					cpuStall <= '0';
-					stopStall <= "00";
-				else
-					stopStall <= "10";
-				end if;
-			end if;
-		else
-			if (stopStall = "01") then
-				cpuStall <= '0';
-				stopStall <= "00";
-			else
-				stopStall <= "10";
-			end if;
-		end if;
-	else
-		cpuStall <= '1';
-	end if;
-end process;	
-		
-
 process(EXMEMStructuralStall)
 begin
 if EXMEMStructuralStall = '1' then 
@@ -596,10 +390,10 @@ end if;
 
 end process;
 
-process (clock)
+process (clk)
 begin
 
-if (clock'event and clock = '1') then
+if (clk'event and clk = '1') then
 --PIPELINED VALUE 
 --IFID 
 IFIDaddress <= address;

@@ -19,4 +19,6 @@ begin
 	add <= plusFour + to_integer(unsigned(counterOutput)); 
 	adderOutput <= std_logic_vector(to_unsigned(add, adderOutput'length));
 
+
+	
 end adder_arch;

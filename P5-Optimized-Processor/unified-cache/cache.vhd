@@ -58,10 +58,10 @@ begin
 	elsif (clock'event and clock = '1') then
 		state <= next_state;
 	end if;
-end process;
+end process;	
 
 process (s_read, s_write, m_waitrequest, state)
-	variable index : INTEGER;
+	variable index : INTEGER;	
 	variable Offset : INTEGER := 0;
 	variable off : INTEGER := Offset - 1;
 	variable count : INTEGER := 0;
@@ -72,7 +72,7 @@ begin
 	off :=  Offset - 1;
 
 	case state is
-
+	
 		when start =>
 			s_waitrequest <= '1';
 			if s_read = '1' then --READ
@@ -82,7 +82,7 @@ begin
 			else
 				next_state <= start;
 			end if;
-
+			
 		when r =>
 			-- if valid and tags match
 			if cache2(index)(154) = '1' and cache2(index)(152 downto 128) = s_addr (31 downto 7) then --HIT     address = tag of cache index
@@ -96,25 +96,25 @@ begin
 			else
 				next_state <= r;
 			end if;
-
+				
 		when r_memwrite =>
 			if count < 4 and m_waitrequest = '1' and next_state /= r_memread then -- EVICT
 				addr := cache2(index)(133 downto 128) & s_addr (6 downto 0);   -- create new address with last 8 bits of tag  + 7 bits of address
 				m_addr <= to_integer(unsigned (addr));	-- set the address to memory
 				m_write <= '1'; -- write into memory
 				m_read <= '0';
-				m_writedata <= cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off); -- write into memory  4 byte = 1 word
-				count := 4; -- go to mem read next CC
-				next_state <= r_memwrite;  -- after letting the memory write, read the value
-
-			elsif count = 4 then
+				m_writedata <= cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off); -- write into memory  4 byte = 1 word 
+				count := 4; -- go to mem read next CC 
+				next_state <= r_memwrite;  -- after letting the memory write, read the value 
+			
+			elsif count = 4 then 
 				count := 0;
 				next_state <= r_memread;
 			else
 				m_write <= '0';
 				next_state <= r_memwrite;
 			end if;
-		-- Need to test this part
+		-- Need to test this part 
 		when r_memread =>
 			if m_waitrequest = '1' then -- READ FROM MEM FIRST PART
 				m_addr <= to_integer(unsigned(s_addr (12 downto 0)));
@@ -124,10 +124,10 @@ begin
 			else
 				next_state <= r_memread;
 			end if;
-
+			
 		when r_memwait =>
 			if count < 3 and m_waitrequest = '0' then -- READ FROM MEM SECOND PART
-				count := 4;
+				count := 4;	
 				m_read <= '0';
 				next_state <= r_memwait;
 			elsif count = 4 then -- PLACE DATA READ FROM MEM ONTO OUTPUT
@@ -144,23 +144,23 @@ begin
 			else
 				next_state <= r_memwait;
 			end if;
-
+		
 		when w =>
 			if cache2(index)(153) = '1' and next_state /= start and ( cache2(index)(154) /= '1' or cache2(index)(152 downto 127) /= s_addr (31 downto 6)) then --DIRTY AND MISS
 				next_state <= w_memwrite;
 			else
-				cache2(index)(153) <= '1'; -- DIRTY
+				cache2(index)(153) <= '1'; -- DIRTY	
 				cache2(index)(154) <= '1'; --Valid
 				cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off) <= s_writedata; --DATA
 				cache2(index)(152 downto 128) <= s_addr (31 downto 7); --TAG
 				s_waitrequest <= '0';
 				next_state <= start;
-
+					
 				end if;
-
-		when w_memwrite =>
+		
+		when w_memwrite => 	
 			if count < 4 and m_waitrequest = '1' then -- EVICT
-				addr := cache2(index)(133 downto 128) & s_addr (6 downto 0);
+				addr := cache2(index)(133 downto 128) & s_addr (6 downto 0); 
 				m_addr <= to_integer(unsigned (addr)) ;
 				m_write <= '1';
 				m_read <= '0';
@@ -168,7 +168,7 @@ begin
 				count := 4;
 				next_state <= w_memwrite;
 			elsif count = 4 then --WRITE TO CACHE AND SET CONTROL BITS
-				cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off) <= s_writedata (31 downto 0); --DATA
+				cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off) <= s_writedata (31 downto 0); --DATA  
 				cache2(index)(152 downto 128) <= s_addr (31 downto 7); --TAG
 				cache2(index)(153) <= '1'; --DIRTY
 				cache2(index)(154) <= '1'; --Valid

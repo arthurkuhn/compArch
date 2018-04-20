@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity mem is
 GENERIC(
 	ram_size : INTEGER := 8192; 
-	mem_delay : time := 20 ns;
+	mem_delay : time := 10 ns;
 	clock_period : time := 1 ns
 );
 port (clk: in std_logic;
@@ -28,12 +28,10 @@ port (clk: in std_logic;
 	
 	--Memory signals
 	writedata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-	address: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+	address: OUT INTEGER RANGE 0 TO ram_size-1;
 	memwrite: OUT STD_LOGIC := '0';
 	memread: OUT STD_LOGIC := '0';
 	readdata: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-	cpuStall : IN STD_LOGIC;
-	cpuStall_out: OUT STD_LOGIC;
 	waitrequest: IN STD_LOGIC
 	
   );
@@ -50,7 +48,7 @@ begin
 
 process (clk)
 begin
-	if (clk'event and clk = '1' and cpuStall = '0') then
+	if (clk'event and clk = '1') then
 		write_addr_out <= write_addr_next;
 		mem_data_out <= mem_data_next;
 		alu_out <= alu_next;
@@ -63,8 +61,11 @@ begin
 end process;
 
 
-process (write_addr_in , ctrl_memtoreg_in, ctrl_regwrite_in, alu_in,waitrequest)
-begin	
+process (write_addr_in , ctrl_memtoreg_in, ctrl_regwrite_in, alu_in)
+begin
+	memwrite <= '0';
+	memread <= '0';
+	
 	--Propogate signals
 	write_addr_next <= write_addr_in;
 	ctrl_memtoreg_next <= ctrl_memtoreg_in;
@@ -80,20 +81,14 @@ begin
 	--Access memory
 	
 	if ctrl_write = '1' then
-		address <= alu_in;	
+		address <= to_integer(unsigned(alu_in));	
 		memwrite <= '1'; 	
 		writedata <= mem_data_in;
 	elsif ctrl_read = '1' then
-		address <= alu_in;	
+		address <= to_integer(unsigned(alu_in));	
 		memread <= '1';
+		
 	end if;
-	
-	if (waitrequest'event and waitrequest = '1') then
-		memwrite <= '0';
-		memread <= '0';
-	end if;
-	
 end process;
-
 mem_data_next <= readdata;
 end behavioral;

@@ -7,7 +7,7 @@ use ieee.std_logic_textio.all;
 
 ENTITY newMemory IS
 	GENERIC(
-	-- might need to change it
+	-- might need to change it 
 		ram_size : INTEGER := 8192;
 		mem_delay : time := 20 ns;
 		clock_period : time := 1 ns
@@ -30,32 +30,32 @@ ARCHITECTURE rtl OF newMemory IS
 	SIGNAL read_address_reg: INTEGER RANGE 0 to ram_size-1;
 	SIGNAL write_waitreq_reg: STD_LOGIC := '1';
 	SIGNAL read_waitreq_reg: STD_LOGIC := '1';
-
+	
 BEGIN
 	--This is the main section of the SRAM model
 	mem_process: PROCESS (clock)
-
+	
 	FILE f : text;
 	variable row : line;
 	variable rowData : std_logic_vector(31 downto 0);
 	variable rowCounter : integer:=0;
-
+	
 	BEGIN
 		--This is a cheap trick to initialize the SRAM in simulation
 		IF(now < 1 ps)THEN
 			For i in 0 to ram_size-1 LOOP
 				ram_block(i) <= std_logic_vector(to_unsigned(0,32));
-			END LOOP;
+			END LOOP;	
 			file_open(f,"program.txt.",READ_MODE);
 		while (not endfile(f)) loop
-
+			
 			readline(f,row);
 			read(row,rowData);
 			ram_block(rowCounter) <= rowData;
 			rowCounter := rowCounter + 1;
-
+			
 		end loop;
-
+			
 		end if;
 		file_close(f);
 
@@ -86,23 +86,23 @@ BEGIN
 		END IF;
 	END PROCESS;
 	waitrequest <= write_waitreq_reg and read_waitreq_reg;
-
+	
 	process(writeToText)
 		file memoryFile : text open write_mode is "memory.txt";
-		variable outLine : line;
+		variable outLine : line;	
 		variable rowLine : integer := 0;
 
 		begin
 		if writeToText = '1' then
-
-		while (rowLine < 8192) loop
-
+		
+		while (rowLine < 8192) loop 
+		
 			write(outLine, ram_block(rowLine));
 			writeline(memoryFile, outLine);
 			rowLine := rowLine + 1;
-
+			
 		end loop;
-	end if;
+	end if;	
 	end process;
 
 END rtl;

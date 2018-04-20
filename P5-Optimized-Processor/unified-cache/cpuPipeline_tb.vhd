@@ -26,7 +26,7 @@ signal rst : std_logic := '0';
 signal fourInt : INTEGER := 4;
 signal writeToRegisterFile : std_logic := '0';
 signal writeToMemoryFile : std_logic := '0';
-begin
+begin 
 
 pipeline : cpuPipeline
 
@@ -48,9 +48,9 @@ clk_process : process
 
 test_process : process
     BEGIN
-
+	
 	report "STARTING SIMULATION \n";
-
+		
 		wait for  210000 *clk_period;
 		writeToRegisterFile <= '1';
 		writeToMemoryFile <= '1';

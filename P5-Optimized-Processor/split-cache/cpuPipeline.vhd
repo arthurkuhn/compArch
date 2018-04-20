@@ -2,135 +2,142 @@ library ieee;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-ENTITY cpuPipeline is
-port (
-    clk : in std_logic;
-    reset : in std_logic;
-    four : INTEGER;
-    write_to_register_file : in std_logic := '0';
-    write_to_memory_file : in std_logic := '0'
+entity cpuPipeline is
+port 
+(
+clk : in std_logic;
+reset : in std_logic;
+four : INTEGER;
+writeToRegisterFile : in std_logic := '0';
+writeToMemoryFile : in std_logic := '0'
+
 );
+
 end cpuPipeline;
 
-architecture arch of cpuPipeline is
+architecture cpuPipeline_arch of cpuPipeline is
 
 component instructionFetchStage IS
-port(
-    clk : in std_logic;
-    global_clk : in std_logic;
-    mux_in0 : in std_logic_vector(31 downto 0);
-    select_ins : in std_logic;
-    four : in INTEGER;
-    structural_stall : IN STD_LOGIC := '0';
-    pc_stall : IN STD_LOGIC := '0';
+	port(
+		clk : in std_logic;
+		globalClk : in std_logic;
+		muxInput0 : in std_logic_vector(31 downto 0);
+		selectInputs : in std_logic;
+		four : in INTEGER;
+		structuralStall : IN STD_LOGIC;
+		pcStall : IN STD_LOGIC;
 
-    select_out : out std_logic_vector(31 downto 0);
-    instruction_mem_out : out std_logic_vector(31 downto 0);
+		selectOutput : out std_logic_vector(31 downto 0);
+		instructionMemoryOutput : out std_logic_vector(31 downto 0);
+		
+		waitrequest: out std_logic;
+		
+			-- CACHE port 
+		Caddr : out integer range 0 to 1024-1;
+		Cread : out std_logic;
+		Creaddata : in std_logic_vector (31 downto 0);
+		Cwrite : out std_logic;
+		Cwritedata : out std_logic_vector (31 downto 0);
+		Cwaitrequest : in std_logic
 
-    wait_req: out std_logic;
-
-    -- CACHE port
-    C_addr : out integer range 0 to 1024-1;
-    C_read : out std_logic;
-    C_readdata : in std_logic_vector (31 downto 0);
-    C_write : out std_logic;
-    C_writedata : out std_logic_vector (31 downto 0);
-    C_waitrequest : in std_logic
-);
-end component;
-
+	);
+		
+	end component;
+		
 component controller is
-port(
-     clk : in std_logic;
-     opcode : in std_logic_vector(5 downto 0);
-     funct : in std_logic_vector(5 downto 0);
-     branch: in std_logic;
-     oldBranch: in std_logic;
-     ALU1src : out STD_LOGIC;
-     ALU2src : out STD_LOGIC;
-     MemRead : out STD_LOGIC;
-     MemWrite : out STD_LOGIC;
-     RegWrite : out STD_LOGIC;
-     MemToReg : out STD_LOGIC;
-     RType : out std_logic;
-     JType : out std_logic;
-     Shift : out std_logic;
-     structuralStall : out std_logic;
-     ALUOp : out STD_LOGIC_VECTOR(4 downto 0)
-);
+	port(clk : in std_logic;
+		 opcode : in std_logic_vector(5 downto 0);
+		 funct : in std_logic_vector(5 downto 0);
+		 branch: in std_logic;
+		 oldBranch: in std_logic;
+		 ALU1src : out STD_LOGIC;
+		 ALU2src : out STD_LOGIC;
+		 MemRead : out STD_LOGIC;
+		 MemWrite : out STD_LOGIC;
+		 RegWrite : out STD_LOGIC;
+		 MemToReg : out STD_LOGIC;
+		 RType : out std_logic;
+		 JType : out std_logic;
+		 Shift : out std_logic;
+		 structuralStall : out std_logic;
+		 ALUOp : out STD_LOGIC_VECTOR(4 downto 0)
+		 );
 end component;
 
 component register_file is
+
 PORT(
-    clock: IN STD_LOGIC;
-    rs: IN STD_LOGIC_VECTOR (4 downto 0);
-    rt: IN STD_LOGIC_VECTOR (4 downto 0);
-    write_enable: IN STD_LOGIC;
-    rd: IN STD_LOGIC_VECTOR (4 downto 0);
-    rd_data: IN STD_LOGIC_VECTOR (31 downto 0);
-    write_to_text : IN STD_LOGIC := '0';
+		
+		clock: IN STD_LOGIC;
+		rs: IN STD_LOGIC_VECTOR (4 downto 0);
+		rt: IN STD_LOGIC_VECTOR (4 downto 0);
+		write_enable: IN STD_LOGIC; 
+		rd: IN STD_LOGIC_VECTOR (4 downto 0);
+		rd_data: IN STD_LOGIC_VECTOR (31 downto 0); 
+		writeToText : IN STD_LOGIC := '0';
 
-    ra_data: OUT STD_LOGIC_VECTOR (31 downto 0);
-    rb_data: OUT STD_LOGIC_VECTOR (31 downto 0)
-);
+		ra_data: OUT STD_LOGIC_VECTOR (31 downto 0);
+		rb_data: OUT STD_LOGIC_VECTOR (31 downto 0) 
+	);
+
 end component;
 
-component signextender is
-PORT (
-    immediateIn: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-    immediateOut: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
-);
-end component;
 
+component signextender is 
+	PORT (
+        immediate_in: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+        immediate_out: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+    );
+end component;
+	
 component mux is
-PORT(
+port(
 	 input0 : in std_logic_vector(31 downto 0);
 	 input1 : in std_logic_vector(31 downto 0);
 	 selectInput : in std_logic;
 	 selectOutput : out std_logic_vector(31 downto 0)
 	 );
+	 	
+	
 end component;
 
 component alu is
-Port(
-    in_A : in STD_LOGIC_VECTOR (31 downto 0);
-    in_B : in STD_LOGIC_VECTOR (31 downto 0);
-    SEL : in STD_LOGIC_VECTOR (4 downto 0);
-    alu_out : out STD_LOGIC_VECTOR(31 downto 0));
+ Port ( input_a : in STD_LOGIC_VECTOR (31 downto 0);
+ input_b : in STD_LOGIC_VECTOR (31 downto 0);
+ SEL : in STD_LOGIC_VECTOR (4 downto 0);
+ out_alu : out STD_LOGIC_VECTOR(31 downto 0));
 end component;
 
 component zero is
-port (
-    in_A : in std_logic_vector (31 downto 0);
-	in_B : in std_logic_vector (31 downto 0);
-	op_type : in std_logic_vector (4 downto 0);
+port (input_a : in std_logic_vector (31 downto 0);
+	input_b : in std_logic_vector (31 downto 0);
+	optype : in std_logic_vector (4 downto 0);
 	result: out std_logic
-);
+  );
 end component;
 
 --MEMORY OBJ FOR MEM STAGE
 COMPONENT newMemory IS
-GENERIC(
-    ram_size : INTEGER := 8192;
-    mem_delay : time := 20 ns;
-    clock_period : time := 1 ns
-);
-
-PORT (
-    clock: IN STD_LOGIC;
-    writedata: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
-    address: IN INTEGER RANGE 0 TO ram_size-1;
-    memwrite: IN STD_LOGIC := '0';
-    memread: IN STD_LOGIC := '0';
-    writeToText : IN STD_LOGIC := '0';
-
-    readdata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
-    waitrequest: OUT STD_LOGIC
-);
+	GENERIC(
+		ram_size : INTEGER := 8192;
+		mem_delay : time := 20 ns;
+		clock_period : time := 1 ns
+	);
+	PORT (
+		clock: IN STD_LOGIC;
+		writedata: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+		address: IN INTEGER RANGE 0 TO ram_size-1;
+		memwrite: IN STD_LOGIC := '0';
+		memread: IN STD_LOGIC := '0';
+		writeToText : IN STD_LOGIC := '0';
+		
+		readdata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
+		waitrequest: OUT STD_LOGIC
+	);
 END COMPONENT;
 
 --MEM STAGE
-component mem is
+component mem is  
 port (clk: in std_logic;
 	-- Control lines
 	ctrl_write : in std_logic;
@@ -148,7 +155,7 @@ port (clk: in std_logic;
 	mem_data_out: out std_logic_vector (31 downto 0);
 	write_addr_in: in std_logic_vector (4 downto 0);
 	write_addr_out: out std_logic_vector (4 downto 0);
-
+	
 	--Memory signals
 	writedata: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
 	address: OUT STD_LOGIC_VECTOR (31 DOWNTO 0);
@@ -157,15 +164,15 @@ port (clk: in std_logic;
 	readdata: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
 	cpuStall : IN STD_LOGIC ;
 	waitrequest: IN STD_LOGIC
-);
+	
+  );
 end component;
-
+ 
 component wb is
-port (
-    ctrl_memtoreg_in: in std_logic;
+port (ctrl_memtoreg_in: in std_logic;
 	ctrl_regwrite_in: in std_logic;
 	ctrl_regwrite_out: out std_logic;
-
+	
 	alu_in : in std_logic_vector (31 downto 0);
 	mem_in: in std_logic_vector (31 downto 0);
 	mux_out : out std_logic_vector (31 downto 0);
@@ -173,7 +180,7 @@ port (
 	write_addr_out: out std_logic_vector (4 downto 0)
 );
  end component;
-
+ 
  component cache is
 	generic(
 		ram_size : INTEGER := 8192
@@ -188,7 +195,7 @@ port (
 		s_readdata : out std_logic_vector (31 downto 0);
 		s_write : in std_logic;
 		s_writedata : in std_logic_vector (31 downto 0);
-		s_waitrequest : out std_logic;
+		s_waitrequest : out std_logic; 
 
 		m_addr : out integer range 0 to ram_size-1;
 		m_read : out std_logic;
@@ -211,14 +218,14 @@ component arbiter is
 		s_write_data : in std_logic;
 		s_writedata_data : in std_logic_vector (31 downto 0);
 		s_waitrequest_data : out std_logic;
-
+		
 		s_addr_instruct : in integer range 0 to ram_size-1;
 		s_read_instruct : in std_logic;
 		s_readdata_instruct : out std_logic_vector (31 downto 0);
 		s_write_instruct : in std_logic;
 		s_writedata_instruct : in std_logic_vector (31 downto 0);
 		s_waitrequest_instruct : out std_logic;
-
+		
 		m_addr : out integer range 0 to ram_size-1;
 		m_read : out std_logic;
 		m_readdata : in std_logic_vector (31 downto 0);
@@ -228,10 +235,11 @@ component arbiter is
 	);
 end component;
 
--- CLOCK SIGNAL
-signal clock : std_logic := clk;
 
--- STALL SIGNALS
+ -- CLOCK SIGNAL 
+signal clock : std_logic := clk;
+ 
+ -- STALL SIGNALS 
 signal IDEXStructuralStall : std_logic;
 signal EXMEMStructuralStall : std_logic;
 signal structuralStall : std_logic;
@@ -239,20 +247,21 @@ signal pcStall : std_logic;
 signal cpuStall : std_logic := '0';
 signal stopStall : std_logic_vector (1 downto 0) := "00";
 
--- TEST SIGNALS
+-- TEST SIGNALS 
 signal muxInput : STD_LOGIC_VECTOR(31 downto 0) := "00000000000000000000000000000000";
 signal selectInput : std_logic := '1';
 signal fourInt : INTEGER := 4;
 signal IFwaitrequest: std_logic;
 
 -- PIPELINE IFID
--- address goes to both IFID and IDEX
+--address goes to both IFID and IDEX
 signal address : std_logic_vector(31 downto 0);
 signal instruction : std_logic_vector(31 downto 0);
 signal IFIDaddress : std_logic_vector(31 downto 0);
 signal IFIDinstruction : std_logic_vector(31 downto 0);
 
 --PIPELINE IDEX
+
 signal IDEXaddress : std_logic_vector(31 downto 0);
 signal IDEXra : std_logic_vector(31 downto 0);
 signal IDEXrb : std_logic_vector(31 downto 0);
@@ -260,6 +269,7 @@ signal IDEXimmediate : std_logic_vector(31 downto 0);
 signal IDEXrd : std_logic_vector (4 downto 0);
 signal IDEXALU1srcO, IDEXALU2srcO, IDEXMemReadO, IDEXMeMWriteO, IDEXRegWriteO, IDEXMemToRegO: std_logic;
 signal IDEXAluOp : std_logic_vector (4 downto 0);
+
 
 -- SIGNALS FOR CONTROLLER
 signal opcodeInput,functInput : std_logic_vector(5 downto 0);
@@ -273,24 +283,24 @@ signal write_enable : std_logic;
 signal ra,rb : std_logic_vector(31 downto 0);
 signal shamnt : std_logic_vector(4 downto 0);
 
-signal immediate : std_logic_vector(15 downto 0);
+signal immediate : std_logic_vector(15 downto 0); 
 signal immediate_out : std_logic_vector(31 downto 0);
 
--- SIGNALS FOR EXECUTE STAGE
+-- SIGNALS FOR EXECUTE STAGE  
 signal muxOutput1 : std_logic_vector(31 downto 0);
 signal muxOutput2 : std_logic_vector(31 downto 0);
 signal aluOutput : std_logic_vector(31 downto 0);
 signal zeroOutput : std_logic;
 
 -- SIGNALS FOR EXMEM
-signal EXMEMBranch : std_logic; -- need the zero variable
+signal EXMEMBranch : std_logic; -- need the zero variable 
 signal ctrl_jal : std_logic;
 signal EXMEMaluOutput : std_logic_vector(31 downto 0);
 signal EXMEMregisterOutput : std_logic_vector(31 downto 0);
 signal EXMEMrd : std_logic_vector(4 downto 0);
 signal EXMEMMemReadO, EXMEMMeMWriteO, EXMEMRegWriteO, EXMEMMemToRegO: std_logic;
 
--- MEM SIGNALS
+-- MEM SIGNALS 
 signal MEMWBmemOutput : std_logic_vector(31 downto 0);
 signal MEMWBaluOutput : std_logic_vector(31 downto 0);
 signal MEMWBrd : std_logic_vector(4 downto 0);
@@ -311,7 +321,7 @@ signal m_readdata_data : std_logic_vector (31 downto 0);
 signal m_write_data : std_logic;
 signal m_writedata_data : std_logic_vector (31 downto 0);
 signal m_waitrequest_data : std_logic;
-
+       
 signal m_addr_instruct : integer range 0 to 1024-1;
 signal m_read_instruct : std_logic;
 signal m_readdata_instruct : std_logic_vector (31 downto 0);
@@ -324,7 +334,7 @@ signal m_read : std_logic;
 signal m_readdata : std_logic_vector (31 downto 0);
 signal m_write : std_logic;
 signal m_writedata : std_logic_vector (31 downto 0);
-signal m_waitrequest : std_logic;
+signal m_waitrequest : std_logic; 
 
 signal m_writeToText : std_logic := '0';
 
@@ -334,30 +344,30 @@ begin
 IFS : instructionFetchStage
 port map(
 	clk => clock,
-	global_clk => clk,
-	mux_in0 => EXMEMaluOutput,
-	select_ins => EXMEMBranch,
+	globalClk => clk,
+	muxInput0 => EXMEMaluOutput,
+	selectInputs => EXMEMBranch,
 	four => fourInt,
-	structural_stall => structuralStall,
-	pc_stall => pcStall,
-	select_out => address,
-	instruction_mem_out => instruction,
-
-	wait_req => IFwaitrequest,
-				-- CACHE port
-	C_addr => m_addr_instruct,
-	C_read => m_read_instruct,
-	C_readdata => m_readdata_instruct,
-	C_write => m_write_instruct,
-	C_writedata => m_writedata_instruct,
-	C_waitrequest => m_waitrequest_instruct
-
+	structuralStall => structuralStall,
+	pcStall => pcStall,
+	selectOutput => address,
+	instructionMemoryOutput => instruction,
+	
+	waitrequest => IFwaitrequest,
+				-- CACHE port 
+	Caddr => m_addr_instruct,
+	Cread => m_read_instruct,
+	Creaddata => m_readdata_instruct,
+	Cwrite => m_write_instruct,
+	Cwritedata => m_writedata_instruct,
+	Cwaitrequest => m_waitrequest_instruct
+	
 );
--- DECODE STAGE
-CT : controller
+-- DECODE STAGE 
+CT : controller 
 port map(
 	clk => clock,
-	opcode => opcodeInput,
+	opcode => opcodeInput, 
 	funct => functInput,
 	branch => zeroOutput,
 	oldBranch => EXMEMBranch,
@@ -372,7 +382,7 @@ port map(
 	Shift => Shift,
 	RType => RType,
 	JType => JType
-
+	
 );
 
 RegisterFile : register_file
@@ -383,48 +393,48 @@ port map (
 	write_enable => write_enable,
 	rd => WBrd,
 	rd_data => rd_data,
-	write_to_text => write_to_register_file,
+	writeToText => writeToRegisterFile,
 	ra_data => ra,
 	rb_data => rb
 );
 
 se : signextender
 port map(
-    immediateIn => immediate,
-    immediateOut => immediate_out
+immediate_in => immediate,
+immediate_out => immediate_out
 );
 
--- EXECUTE STAGE
-exMux1 : mux
+-- EXECUTE STAGE 
+exMux1 : mux 
 port map (
-    input0 => IDEXra,
-    input1 => IDEXaddress,
-    selectInput => IDEXALU1srcO,
-    selectOutput => muxOutput1
+input0 => IDEXra,
+input1 => IDEXaddress,
+selectInput => IDEXALU1srcO,
+selectOutput => muxOutput1
 );
 
-exMux2 : mux
+exMux2 : mux 
 port map (
-    input0 => IDEXimmediate,
-    input1 => IDEXrb,
-    selectInput => IDEXALU2srcO,
-    selectOutput => muxOutput2
+input0 => IDEXimmediate,
+input1 => IDEXrb,
+selectInput => IDEXALU2srcO,
+selectOutput => muxOutput2
 );
 
-operator : alu
-port map(
-    in_A => muxOutput1,
-    in_B => muxOutput2,
-    SEL => IDEXAluOp,
-    alu_out => aluOutput
+operator : alu 
+port map( 
+input_a => muxOutput1,
+input_b => muxOutput2,
+SEL => IDEXAluOp,
+out_alu => aluOutput
 );
 
-zr : zero
+zr : zero 
 port map (
-    in_A => IDEXra,
-    in_B => IDEXrb,
-    op_type => IDEXAluOp,
-    result => zeroOutput
+input_a => IDEXra,
+input_b => IDEXrb, 
+optype => IDEXAluOp,  
+result => zeroOutput
 );
 
 memStage : mem
@@ -443,10 +453,10 @@ port map (
 	alu_in => EXMEMaluOutput,
 	alu_out=>  MEMWBaluOutput,
 	mem_data_in => EXMEMregisterOutput,
-	mem_data_out => MEMWBmemOutput,
+	mem_data_out => MEMWBmemOutput, 
 	write_addr_in => EXMEMrd,
 	write_addr_out => MEMWBrd,
-
+	
 	--Memory signals
 	writedata => MEMwritedata,
 	address => MEMaddress,
@@ -484,24 +494,24 @@ port map (
     address => m_addr,
     memwrite => m_write,
     memread => m_read,
-    writeToText => write_to_memory_file,
+    writeToText => writeToMemoryFile,
 	readdata => m_readdata,
     waitrequest => m_waitrequest
 );
 
 arb: arbiter
 port map (
-	s_addr_data => m_addr_data,
+	s_addr_data => m_addr_data, 
 	s_read_data => m_read_data,
 	s_readdata_data => m_readdata_data,
-	s_write_data => m_write_data,
+	s_write_data => m_write_data, 
 	s_writedata_data => m_writedata_data,
 	s_waitrequest_data => m_waitrequest_data,
-
-	s_addr_instruct => m_addr_instruct,
+	
+	s_addr_instruct => m_addr_instruct, 
 	s_read_instruct => m_read_instruct,
 	s_readdata_instruct => m_readdata_instruct,
-	s_write_instruct => m_write_instruct,
+	s_write_instruct => m_write_instruct, 
 	s_writedata_instruct => m_writedata_instruct,
 	s_waitrequest_instruct => m_waitrequest_instruct,
 
@@ -518,7 +528,7 @@ wbStage: wb
 port map (ctrl_memtoreg_in => memtoReg,
 	ctrl_regwrite_in => regWrite,
 	ctrl_regwrite_out => write_enable,
-
+	
 	alu_in  => MEMWBaluOutput,
 	mem_in => MEMWBmemOutput,
 	mux_out  => rd_data,
@@ -570,14 +580,14 @@ begin
 	else
 		cpuStall <= '1';
 	end if;
-end process;
-
+end process;	
+		
 
 process(EXMEMStructuralStall)
 begin
-if EXMEMStructuralStall = '1' then
+if EXMEMStructuralStall = '1' then 
 	pcStall <= '1';
-else
+else 
 	pcStall <= '0';
 end if;
 
@@ -664,4 +674,4 @@ immediate <= IFIDinstruction(15 downto 0);
 -- MIGHT NEED TO PUT WRITE ENABLE HERE LATER 
 -- AND JUMP ADDRESS HERE 
 
-end arch;
+end cpuPipeline_arch;
