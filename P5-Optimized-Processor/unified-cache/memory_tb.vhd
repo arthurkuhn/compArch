@@ -39,7 +39,7 @@ ARCHITECTURE behaviour OF memory_tb IS
 BEGIN
 
     --dut => Device Under Test
-    dut: newMemory GENERIC MAP(
+    dut: memory GENERIC MAP(
             ram_size => 8192
                 )
                 PORT MAP(
