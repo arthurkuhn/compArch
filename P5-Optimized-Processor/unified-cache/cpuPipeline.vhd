@@ -317,26 +317,26 @@ signal	MEMreaddata : std_logic_vector(31 downto 0);
 signal	MEMwaitrequest : STD_LOGIC;
 
 --SIGNALS FOR CACHE
-signal m_addr_instruct : std_logic_vector (31 downto 0);
-signal m_read_instruct : std_logic;
-signal m_readdata_instruct : std_logic_vector (31 downto 0);
-signal m_write_instruct : std_logic;
-signal m_writedata_instruct : std_logic_vector (31 downto 0);
-signal m_waitrequest_instruct : std_logic;
+signal mAddrInstruct : std_logic_vector (31 downto 0);
+signal mReadInstruct : std_logic;
+signal mReaddataInstruct : std_logic_vector (31 downto 0);
+signal mWriteInstruct : std_logic;
+signal mWritedataInstruct : std_logic_vector (31 downto 0);
+signal mWaitrequestInstruct : std_logic;
 
-signal s_addr : std_logic_vector (31 downto 0);
-signal s_read : std_logic;
-signal s_readdata : std_logic_vector (31 downto 0);
-signal s_write : std_logic;
-signal s_writedata : std_logic_vector (31 downto 0);
-signal s_waitrequest : std_logic; 
+signal sAddr : std_logic_vector (31 downto 0);
+signal sRead : std_logic;
+signal sReaddata : std_logic_vector (31 downto 0);
+signal sWrite : std_logic;
+signal sWritedata : std_logic_vector (31 downto 0);
+signal sWaitrequest : std_logic; 
 
-signal m_addr : integer range 0 to 8192-1;
-signal m_read : std_logic;
-signal m_readdata : std_logic_vector (31 downto 0);
-signal m_write : std_logic;
-signal m_writedata : std_logic_vector (31 downto 0);
-signal m_waitrequest : std_logic; 
+signal mAddr : integer range 0 to 8192-1;
+signal mRead : std_logic;
+signal mReaddata : std_logic_vector (31 downto 0);
+signal mWrite : std_logic;
+signal mWritedata : std_logic_vector (31 downto 0);
+signal mWaitrequest : std_logic; 
 
 signal m_writeToText : std_logic := '0';
 
@@ -355,12 +355,12 @@ port map(
 	selectOutput => address,
 	instructionMemoryOutput => instruction,
 	
-	pcOutput => m_addr_instruct,
-	readOutput => m_read_instruct,
-	memoryValue => m_readdata_instruct,
-	writeOutput => m_write_instruct,
-	writeDataOutput => m_writedata_instruct,
-	waitRequestInput => m_waitrequest_instruct
+	pcOutput => mAddrInstruct,
+	readOutput => mReadInstruct,
+	memoryValue => mReaddataInstruct,
+	writeOutput => mWriteInstruct,
+	writeDataOutput => mWritedataInstruct,
+	waitRequestInput => mWaitrequestInstruct
 	
 );
 -- DECODE STAGE 
