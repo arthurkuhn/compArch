@@ -5,13 +5,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity cache is
-generic(
+ENTITYE cache is
+GENERIC(
 	ram_size : INTEGER := 8192
 );
-port(
-
-	clock : in std_logic;
+PORT(
+	clk : in std_logic;
 	reset : in std_logic;
 
 	-- Avalon interface --
@@ -29,34 +28,29 @@ port(
 	mWritedata : out std_logic_vector (31 downto 0);
 	mWaitrequest : in std_logic
 );
-end cache;
+END cache;
 
-architecture arch of cache is
-type state_type is (start, r, w, r_memread, r_memwrite, r_memwait, w_memwrite);
-signal state : state_type;
-signal next_state : state_type;
+architecture arch_cache of cache is
+type stateType is (start, r, w, rMemread, rMemwrite, rMemwait, wMemwrite);
+signal state : stateType;
+signal nextState : stateType;
 
 --Address struct
---26 bits of tag
---4 bits of index
---2 bits of offset
-
+--26 bits of tag, 4 bits of index, 2 bits of offset
 
 -- Cache struct [16]
-type cache_def is array (0 to 31) of std_logic_vector (154 downto 0);
-signal cache2 : cache_def;
---1 bit valid
---1 bit dirty
---26 bit tag
---128 bit data
+type cacheDef is array (0 to 31) of std_logic_vector (154 downto 0);
+signal cache2 : cacheDef;
+--1 bit valid, 1 bit dirty
+--26 bit tag, 128 bit data
 
 begin
-process (clock, reset)
+process (clk, reset)
 begin
 	if reset = '1' then
 		state <= start;
-	elsif (clock'event and clock = '1') then
-		state <= next_state;
+	elsif (clk'event and clk = '1') then
+		state <= nextState;
 	end if;
 end process;	
 
@@ -76,11 +70,11 @@ begin
 		when start =>
 			sWaitrequest <= '1';
 			if sRead = '1' then --READ
-				next_state <= r;
+				nextState <= r;
 			elsif sWrite = '1' then --WRITE
-				next_state <= w;
+				nextState <= w;
 			else
-				next_state <= start;
+				nextState <= start;
 			end if;
 			
 		when r =>
@@ -88,48 +82,48 @@ begin
 			if cache2(index)(154) = '1' and cache2(index)(152 downto 128) = sAddr (31 downto 7) then --HIT     address = tag of cache index
 				sReaddata <= cache2(index)(127 downto 0) ((Offset * 32) -1 downto 32*off);  -- output 32 bits of data block depending on offset of last 2 bits of address)
 				sWaitrequest <= '0';
-				next_state <= start;
+				nextState <= start;
 			elsif cache2(index)(153) = '1' then --MISS DIRTY
-				next_state <= r_memwrite;
+				nextState <= rMemwrite;
 			elsif cache2(index)(153) = '0' or  cache2(index)(153) = 'U' then --MISS CLEAN
-				next_state <= r_memread;
+				nextState <= rMemread;
 			else
-				next_state <= r;
+				nextState <= r;
 			end if;
 				
-		when r_memwrite =>
-			if count < 4 and mWaitrequest = '1' and next_state /= r_memread then -- EVICT
+		when rMemwrite =>
+			if count < 4 and mWaitrequest = '1' and nextState /= rMemread then -- EVICT
 				addr := cache2(index)(133 downto 128) & sAddr (6 downto 0);   -- create new address with last 8 bits of tag  + 7 bits of address
 				mAddr <= to_integer(unsigned (addr));	-- set the address to memory
 				mWrite <= '1'; -- write into memory
 				mRead <= '0';
 				mWritedata <= cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off); -- write into memory  4 byte = 1 word 
 				count := 4; -- go to mem read next CC 
-				next_state <= r_memwrite;  -- after letting the memory write, read the value 
+				nextState <= rMemwrite;  -- after letting the memory write, read the value
 			
 			elsif count = 4 then 
 				count := 0;
-				next_state <= r_memread;
+				nextState <= rMemread;
 			else
 				mWrite <= '0';
-				next_state <= r_memwrite;
+				nextState <= rMemwrite;
 			end if;
 		-- Need to test this part 
-		when r_memread =>
+		when rMemread =>
 			if mWaitrequest = '1' then -- READ FROM MEM FIRST PART
 				mAddr <= to_integer(unsigned(sAddr (12 downto 0)));
 				mRead <= '1';
 				mWrite <= '0';
-				next_state <= r_memwait;
+				nextState <= rMemwait;
 			else
-				next_state <= r_memread;
+				nextState <= rMemread;
 			end if;
 			
-		when r_memwait =>
+		when rMemwait =>
 			if count < 3 and mWaitrequest = '0' then -- READ FROM MEM SECOND PART
 				count := 4;	
 				mRead <= '0';
-				next_state <= r_memwait;
+				nextState <= rMemwait;
 			elsif count = 4 then -- PLACE DATA READ FROM MEM ONTO OUTPUT
 				cache2(index)(127 downto 0)((Offset * 32) -1 downto 32* off) <= mReaddata;
 				sReaddata <= mReaddata;
@@ -140,25 +134,25 @@ begin
 				mWrite <= '0';
 				sWaitrequest <= '0';
 				count := 0;
-				next_state <= start;
+				nextState <= start;
 			else
-				next_state <= r_memwait;
+				nextState <= rMemwait;
 			end if;
 		
 		when w =>
-			if cache2(index)(153) = '1' and next_state /= start and ( cache2(index)(154) /= '1' or cache2(index)(152 downto 127) /= sAddr (31 downto 6)) then --DIRTY AND MISS
-				next_state <= w_memwrite;
+			if cache2(index)(153) = '1' and nextState /= start and ( cache2(index)(154) /= '1' or cache2(index)(152 downto 127) /= sAddr (31 downto 6)) then --DIRTY AND MISS
+				nextState <= wMemwrite;
 			else
 				cache2(index)(153) <= '1'; -- DIRTY	
 				cache2(index)(154) <= '1'; --Valid
 				cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off) <= sWritedata; --DATA
 				cache2(index)(152 downto 128) <= sAddr (31 downto 7); --TAG
 				sWaitrequest <= '0';
-				next_state <= start;
+				nextState <= start;
 					
 				end if;
 		
-		when w_memwrite => 	
+		when wMemwrite =>
 			if count < 4 and mWaitrequest = '1' then -- EVICT
 				addr := cache2(index)(133 downto 128) & sAddr (6 downto 0); 
 				mAddr <= to_integer(unsigned (addr)) ;
@@ -166,7 +160,7 @@ begin
 				mRead <= '0';
 				mWritedata <= cache2(index)(127 downto 0) ((Offset * 32) -1 downto 32*off);
 				count := 4;
-				next_state <= w_memwrite;
+				nextState <= wMemwrite;
 			elsif count = 4 then --WRITE TO CACHE AND SET CONTROL BITS
 				cache2(index)(127 downto 0)((Offset * 32) -1 downto 32*off) <= sWritedata (31 downto 0); --DATA  
 				cache2(index)(152 downto 128) <= sAddr (31 downto 7); --TAG
@@ -175,13 +169,13 @@ begin
 				count := 0;
 				sWaitrequest <= '0';
 				mWrite <= '0';
-				next_state <=start;
+				nextState <=start;
 			else
 				mWrite <= '0';
-				next_state <= w_memwrite;
+				nextState <= wMemwrite;
 			end if;
 	end case;
 end process;
 
 
-end arch;
+end arch_cache;

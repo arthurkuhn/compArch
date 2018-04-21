@@ -52,7 +52,7 @@ vcom register_file.vhd
 vcom signextender.vhd
 vcom wb.vhd
 vcom zero.vhd
-vcom arbiter.vhd
+vcom dataArbiter.vhd
 vcom cache.vhd
 vcom newMemory.vhd
 

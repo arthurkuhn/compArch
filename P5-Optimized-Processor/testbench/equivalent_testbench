@@ -1,6 +1,7 @@
-# The purpose of this testbench is to demonstrate the equivalent or similar optimization of both the Unified
-# and Split caches over the non-optimized cache implementation
-
+###########################################################################################
+# This testbench file was used to show the equivalent or similar optimization of both the
+# Unified and Split caches over the unoptimized implementation of the pipelined processor.
+###########################################################################################
 
 #The following 3 lines are implemented repeatedly to avoid data hazard, as it has not been implemented
 #add $0, $0, $0

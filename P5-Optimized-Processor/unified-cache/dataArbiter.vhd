@@ -1,15 +1,14 @@
---Data arbiter
-
+-- Data arbiter for P5 Implementation
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity arbiter is
-generic(
+ENTITY dataArbiter is
+GENERIC(
 	ram_size : INTEGER := 8192
 );
-port(
+PORT(
 	-- Avalon interface --
 	sAddrData : in std_logic_vector (31 downto 0);
 	sReadData : in std_logic;
@@ -35,8 +34,9 @@ port(
 	controlOut : out std_logic
 	
 );
-end arbiter;
-architecture arch of arbiter is
+END dataArbiter;
+
+ARCHITECTURE arch_arbiter of arbiter is
 
 	signal control: std_logic := '1';
 	signal inUse: std_logic := '1';
@@ -111,4 +111,4 @@ begin
 end process;
 
 
-end arch;
+end arch_arbiter;

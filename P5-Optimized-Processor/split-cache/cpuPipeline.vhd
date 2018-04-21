@@ -186,23 +186,23 @@ port (ctrl_memtoreg_in: in std_logic;
 		ram_size : INTEGER := 8192
 	);
 	port(
-		clock : in std_logic;
-		reset : in std_logic;
+		clk : in std_logic;
+        reset : in std_logic;
 
-		-- Avalon interface --
-		s_addr : in std_logic_vector (31 downto 0);
-		s_read : in std_logic;
-		s_readdata : out std_logic_vector (31 downto 0);
-		s_write : in std_logic;
-		s_writedata : in std_logic_vector (31 downto 0);
-		s_waitrequest : out std_logic; 
+        -- Avalon interface --
+        sAddr : in std_logic_vector (31 downto 0);
+        sRead : in std_logic;
+        sReaddata : out std_logic_vector (31 downto 0);
+        sWrite : in std_logic;
+        sWritedata : in std_logic_vector (31 downto 0);
+        sWaitRequest : out std_logic;
 
-		m_addr : out integer range 0 to ram_size-1;
-		m_read : out std_logic;
-		m_readdata : in std_logic_vector (31 downto 0);
-		m_write : out std_logic;
-		m_writedata : out std_logic_vector (31 downto 0);
-		m_waitrequest : in std_logic
+        mAddr : out integer range 0 to ram_size-1;
+        mRead : out std_logic;
+        mReaddata : in std_logic_vector (31 downto 0);
+        mWrite : out std_logic;
+        mWritedata : out std_logic_vector (31 downto 0);
+        mWaitrequest : in std_logic
 	);
 end component;
 
@@ -211,27 +211,27 @@ component arbiter is
 		ram_size : INTEGER := 8192
 	);
 	port(
-		-- Avalon interface --
-		s_addr_data : in integer range 0 to ram_size-1;
-		s_read_data : in std_logic;
-		s_readdata_data : out std_logic_vector (31 downto 0);
-		s_write_data : in std_logic;
-		s_writedata_data : in std_logic_vector (31 downto 0);
-		s_waitrequest_data : out std_logic;
-		
-		s_addr_instruct : in integer range 0 to ram_size-1;
-		s_read_instruct : in std_logic;
-		s_readdata_instruct : out std_logic_vector (31 downto 0);
-		s_write_instruct : in std_logic;
-		s_writedata_instruct : in std_logic_vector (31 downto 0);
-		s_waitrequest_instruct : out std_logic;
-		
-		m_addr : out integer range 0 to ram_size-1;
-		m_read : out std_logic;
-		m_readdata : in std_logic_vector (31 downto 0);
-		m_write : out std_logic;
-		m_writedata : out std_logic_vector (31 downto 0);
-		m_waitrequest : in std_logic
+        -- Avalon interface --
+        sAddrData : in std_logic_vector (31 downto 0);
+        sReadData : in std_logic;
+        sReaddataData : out std_logic_vector (31 downto 0);
+        sWriteData : in std_logic;
+        sWritedataData : in std_logic_vector (31 downto 0);
+        sWaitrequestData : out std_logic:= '1';
+
+        sAddrInstruct : in std_logic_vector (31 downto 0);
+        sReadInstruct : in std_logic;
+        sReaddataInstruct : out std_logic_vector (31 downto 0);
+        sWriteInstruct : in std_logic;
+        sWritedataInstruct : in std_logic_vector (31 downto 0);
+        sWaitrequestInstruct : out std_logic:='1';
+
+        mAddr : out std_logic_vector (31 downto 0);
+        mRead : out std_logic;
+        mReaddata : in std_logic_vector (31 downto 0);
+        mWrite : out std_logic;
+        mWritedata : out std_logic_vector (31 downto 0);
+        mWaitrequest : in std_logic;
 	);
 end component;
 
@@ -315,29 +315,28 @@ signal	MEMreaddata : std_logic_vector(31 downto 0);
 signal	MEMwaitrequest : STD_LOGIC;
 
 --SIGNALS FOR CACHE
-signal m_addr_data : integer range 0 to 8192-1;
-signal m_read_data : std_logic;
-signal m_readdata_data : std_logic_vector (31 downto 0);
-signal m_write_data : std_logic;
-signal m_writedata_data : std_logic_vector (31 downto 0);
-signal m_waitrequest_data : std_logic;
+signal mAddrData : integer range 0 to 8192-1;
+signal mReadData : std_logic;
+signal mReaddataData : std_logic_vector (31 downto 0);
+signal mWriteData : std_logic;
+signal mWritedataData : std_logic_vector (31 downto 0);
+signal mWaitrequestData : std_logic;
        
-signal m_addr_instruct : integer range 0 to 1024-1;
-signal m_read_instruct : std_logic;
-signal m_readdata_instruct : std_logic_vector (31 downto 0);
-signal m_write_instruct : std_logic;
-signal m_writedata_instruct : std_logic_vector (31 downto 0);
-signal m_waitrequest_instruct : std_logic;
+signal mAddrInstruct : integer range 0 to 1024-1;
+signal mReadInstruct : std_logic;
+signal mReaddataInstruct : std_logic_vector (31 downto 0);
+signal mWriteInstruct : std_logic;
+signal mWritedataInstruct : std_logic_vector (31 downto 0);
+signal mWaitrequestInstruct : std_logic;
 
-signal m_addr : integer range 0 to 8192-1;
-signal m_read : std_logic;
-signal m_readdata : std_logic_vector (31 downto 0);
-signal m_write : std_logic;
-signal m_writedata : std_logic_vector (31 downto 0);
-signal m_waitrequest : std_logic; 
+signal mAddr : integer range 0 to 8192-1;
+signal mRead : std_logic;
+signal mReaddata : std_logic_vector (31 downto 0);
+signal mWrite : std_logic;
+signal mWritedata : std_logic_vector (31 downto 0);
+signal mWaitrequest : std_logic;
 
 signal m_writeToText : std_logic := '0';
-
 
 begin
 
@@ -355,12 +354,12 @@ port map(
 	
 	waitrequest => IFwaitrequest,
 				-- CACHE port 
-	Caddr => m_addr_instruct,
-	Cread => m_read_instruct,
-	Creaddata => m_readdata_instruct,
-	Cwrite => m_write_instruct,
-	Cwritedata => m_writedata_instruct,
-	Cwaitrequest => m_waitrequest_instruct
+	Caddr => mAddrInstruct,
+	Cread => mReadInstruct,
+	Creaddata => mReaddataInstruct,
+	Cwrite => mWriteInstruct,
+	Cwritedata => mWritedataInstruct,
+	Cwaitrequest => mWaitrequestInstruct
 	
 );
 -- DECODE STAGE 
@@ -469,58 +468,58 @@ port map (
 
 data: cache
 port map(
-    clock => clk,
+    clk => clk,
     reset => reset,
 
-    s_addr => MEMaddress,
-    s_read => MEMmemread,
-    s_readdata => MEMreaddata,
-    s_write => MEMmemwrite,
-    s_writedata => MEMwritedata,
-    s_waitrequest => MEMwaitrequest,
+    sAddr => MEMaddress,
+    sRead => MEMmemread,
+    sReaddata => MEMreaddata,
+    sWrite => MEMmemwrite,
+    sWritedata => MEMwritedata,
+    sWaitrequest => MEMwaitrequest,
 
-    m_addr => m_addr_data,
-    m_read => m_read_data,
-    m_readdata => m_readdata_data,
-    m_write => m_write_data,
-    m_writedata => m_writedata_data,
-    m_waitrequest => m_waitrequest_data
+    mAddr => mAddrData,
+    mRead => m_read_data,
+    mReaddata => mReaddataData,
+    mWrite => mWriteData,
+    mWritedata => mWritedataData,
+    mWaitrequest => mWaitrequestData
 );
 
 newMem : newMemory
 port map (
     clock => clk,
-    writedata => m_writedata,
-    address => m_addr,
-    memwrite => m_write,
-    memread => m_read,
+    writedata => mWritedata,
+    address => mAddr,
+    memwrite => mWrite,
+    memread => mRead,
     writeToText => writeToMemoryFile,
-	readdata => m_readdata,
-    waitrequest => m_waitrequest
+	readdata => mReaddata,
+    waitrequest => mWaitrequest
 );
 
 arb: arbiter
 port map (
-	s_addr_data => m_addr_data, 
-	s_read_data => m_read_data,
-	s_readdata_data => m_readdata_data,
-	s_write_data => m_write_data, 
-	s_writedata_data => m_writedata_data,
-	s_waitrequest_data => m_waitrequest_data,
+	sAddrData => mAddrData,
+	sReadData => m_read_data,
+	sReaddataData => mReaddataData,
+	sWriteData => mWriteData,
+	sWritedataData => mWritedataData,
+	sWaitrequestData => mWaitrequestData,
 	
-	s_addr_instruct => m_addr_instruct, 
-	s_read_instruct => m_read_instruct,
-	s_readdata_instruct => m_readdata_instruct,
-	s_write_instruct => m_write_instruct, 
-	s_writedata_instruct => m_writedata_instruct,
-	s_waitrequest_instruct => m_waitrequest_instruct,
+	sAddrInstruct => mAddrInstruct,
+	sReadInstruct => mReadInstruct,
+	sReaddataInstruct => mReaddataInstruct,
+	sWriteInstruct => mWriteInstruct,
+	sWritedataInstruct => mWritedataInstruct,
+	sWaitrequestInstruct => mWaitrequestInstruct,
 
-	m_addr => m_addr,
-	m_read => m_read,
-	m_readdata => m_readdata,
-	m_write => m_write,
-	m_writedata => m_writedata,
-	m_waitrequest => m_waitrequest
+	mAddr => mAddr,
+	mRead => mRead,
+	mReaddata => mReaddata,
+	mWrite => mWrite,
+	mWritedata => mWritedata,
+	mWaitrequest => mWaitrequest
 );
 
 

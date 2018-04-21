@@ -186,7 +186,7 @@ port (ctrl_memtoreg_in: in std_logic;
 		ram_size : INTEGER := 8192
 	);
 	port(
-		clock : in std_logic;
+		clk : in std_logic;
 		reset : in std_logic;
 
 		-- Avalon interface --
@@ -469,7 +469,7 @@ port map (
 
 unified: cache
 port map(
-    clock => clk,
+    clk => clk,
     reset => reset,
 
     sAddr => sAddr,
