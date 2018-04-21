@@ -549,10 +549,10 @@ clock <= '0';
 end if;
 end process;
 
-process (m_waitrequest_instruct, MEMwaitrequest, EXMEMMemWriteO ,EXMEMMemReadO,clock)
+process (mWaitrequestInstruct, MEMwaitrequest, EXMEMMemWriteO ,EXMEMMemReadO,clock)
 begin
 	if cpuStall = '1' then
-		if (m_waitrequest_instruct'event and m_waitrequest_instruct = '1') then
+		if (mWaitrequestInstruct'event and mWaitrequestInstruct = '1') then
 			if (stopStall = "10") then
 				cpuStall <= '0';
 				stopStall <= "00";
