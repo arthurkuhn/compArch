@@ -472,56 +472,56 @@ port map(
     clock => clk,
     reset => reset,
 
-    s_addr => s_addr,
-    s_read => s_read,
-    s_readdata => s_readdata,
-    s_write => s_write,
-    s_writedata => s_writedata,
-    s_waitrequest => s_waitrequest,
+    sAddr => sAddr,
+    sRead => sRead,
+    sReaddata => sReaddata,
+    sWrite => sWrite,
+    sWritedata => sWritedata,
+    sWaitrequest => sWaitrequest,
 
-    m_addr => m_addr,
-    m_read => m_read,
-    m_readdata => m_readdata,
-    m_write => m_write,
-    m_writedata => m_writedata,
-    m_waitrequest => m_waitrequest
+    mAddr => mAddr,
+    mRead => mRead,
+    mReaddata => mReaddata,
+    mWrite => mWrite,
+    mWritedata => mWritedata,
+    mWaitrequest => mWaitrequest
 );
 
 newMem : newMemory
 port map (
     clock => clk,
-    writedata => m_writedata,
-    address => m_addr,
-    memwrite => m_write,
-    memread => m_read,
+    writedata => mWritedata,
+    address => mAddr,
+    memwrite => mWrite,
+    memread => mRead,
     writeToText => writeToMemoryFile,
-	readdata => m_readdata,
-    waitrequest => m_waitrequest,
+	readdata => mReaddata,
+    waitrequest => mWaitrequest,
 	control => controlSig
 );
 
 arb: arbiter
 port map (
-	s_addr_data => MEMaddress, 
-	s_read_data => MEMmemread,
-	s_readdata_data => MEMreaddata,
-	s_write_data => MEMmemwrite, 
-	s_writedata_data => MEMwritedata,
-	s_waitrequest_data => MEMwaitrequest,
+	sAddrData => MEMaddress, 
+	sReadData => MEMmemread,
+	sReaddataData => MEMreaddata,
+	sWriteData => MEMmemwrite, 
+	sWritedataData => MEMwritedata,
+	sWaitrequestData => MEMwaitrequest,
 	
-	s_addr_instruct => m_addr_instruct, 
-	s_read_instruct => m_read_instruct,
-	s_readdata_instruct => m_readdata_instruct,
-	s_write_instruct => m_write_instruct, 
-	s_writedata_instruct => m_writedata_instruct,
-	s_waitrequest_instruct => m_waitrequest_instruct,
+	sAddrInstruct => mAddrInstruct, 
+	sReadInstruct => mReadInstruct,
+	sReaddataInstruct => mReaddataInstruct,
+	sWriteInstruct => mWriteInstruct, 
+	sWritedataInstruct => mWritedataInstruct,
+	sWaitrequestInstruct => mWaitrequestInstruct,
 
-	m_addr => s_addr,
-	m_read => s_read,
-	m_readdata => s_readdata,
-	m_write => s_write,
-	m_writedata => s_writedata,
-	m_waitrequest => s_waitrequest,
+	mAddr => sAddr,
+	mRead => sRead,
+	mReaddata => sReaddata,
+	mWrite => sWrite,
+	mWritedata => sWritedata,
+	mWaitrequest => sWaitrequest,
 	
 	controlOut => controlSig
 );
