@@ -190,19 +190,19 @@ port (ctrl_memtoreg_in: in std_logic;
 		reset : in std_logic;
 
 		-- Avalon interface --
-		s_addr : in std_logic_vector (31 downto 0);
-		s_read : in std_logic;
-		s_readdata : out std_logic_vector (31 downto 0);
-		s_write : in std_logic;
-		s_writedata : in std_logic_vector (31 downto 0);
-		s_waitrequest : out std_logic; 
+		sAddr : in std_logic_vector (31 downto 0);
+		sRead : in std_logic;
+		sReaddata : out std_logic_vector (31 downto 0);
+		sWrite : in std_logic;
+		sWritedata : in std_logic_vector (31 downto 0);
+		sWaitrequest : out std_logic;
 
-		m_addr : out integer range 0 to ram_size-1;
-		m_read : out std_logic;
-		m_readdata : in std_logic_vector (31 downto 0);
-		m_write : out std_logic;
-		m_writedata : out std_logic_vector (31 downto 0);
-		m_waitrequest : in std_logic
+		mAddr : out integer range 0 to ram_size-1;
+		mRead : out std_logic;
+		mReaddata : in std_logic_vector (31 downto 0);
+		mWrite : out std_logic;
+		mWritedata : out std_logic_vector (31 downto 0);
+		mWaitrequest : in std_logic
 	);
 end component;
 
@@ -212,27 +212,27 @@ component arbiter is
 	);
 	port(
 		-- Avalon interface --
-		s_addr_data : in std_logic_vector (31 downto 0);
-		s_read_data : in std_logic;
-		s_readdata_data : out std_logic_vector (31 downto 0);
-		s_write_data : in std_logic;
-		s_writedata_data : in std_logic_vector (31 downto 0);
-		s_waitrequest_data : out std_logic;
-		
-		s_addr_instruct : in std_logic_vector (31 downto 0);
-		s_read_instruct : in std_logic;
-		s_readdata_instruct : out std_logic_vector (31 downto 0);
-		s_write_instruct : in std_logic;
-		s_writedata_instruct : in std_logic_vector (31 downto 0);
-		s_waitrequest_instruct : out std_logic;
-		
-		m_addr : out std_logic_vector (31 downto 0);
-		m_read : out std_logic;
-		m_readdata : in std_logic_vector (31 downto 0);
-		m_write : out std_logic;
-		m_writedata : out std_logic_vector (31 downto 0);
-		m_waitrequest : in std_logic;
-		
+		sAddrData : in std_logic_vector (31 downto 0);
+		sReadData : in std_logic;
+		sReaddataData : out std_logic_vector (31 downto 0);
+		sWriteData : in std_logic;
+		sWritedataData : in std_logic_vector (31 downto 0);
+		sWaitrequestData : out std_logic:= '1';
+	
+		sAddrInstruct : in std_logic_vector (31 downto 0);
+		sReadInstruct : in std_logic;
+		sReaddataInstruct : out std_logic_vector (31 downto 0);
+		sWriteInstruct : in std_logic;
+		sWritedataInstruct : in std_logic_vector (31 downto 0);
+		sWaitrequestInstruct : out std_logic:='1';
+
+		mAddr : out std_logic_vector (31 downto 0);
+		mRead : out std_logic;
+		mReaddata : in std_logic_vector (31 downto 0);
+		mWrite : out std_logic;
+		mWritedata : out std_logic_vector (31 downto 0);
+		mWaitrequest : in std_logic;
+	
 		controlOut : out std_logic
 	);
 end component;
